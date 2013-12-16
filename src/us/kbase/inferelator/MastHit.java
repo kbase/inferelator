@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * Represents a particular MAST hit
  * string sequence_id - name of sequence
  * string strand - strand ("+" or "-")
- * string pssm_id - name of motif
+ * string pssm_id - name of motif from cmonkey-python output
  * int hit_start - start position of hit
  * int hit_end - end position of hit
  * float score - hit score

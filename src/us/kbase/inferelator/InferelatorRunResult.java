@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * string cmonkey_run_result_id - kbase id of input CmonkeyRunResult
  * string series_id - kbase id of expression data series
  * string organism - organism name
- * list <InferelatorInteraction> interactions
+ * list <InferelatorCluster> clusters
  * </pre>
  * 
  */
@@ -31,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "cmonkey_run_result_id",
     "series_id",
     "organism",
-    "interactions"
+    "clusters"
 })
 public class InferelatorRunResult {
 
@@ -43,8 +43,8 @@ public class InferelatorRunResult {
     private String seriesId;
     @JsonProperty("organism")
     private String organism;
-    @JsonProperty("interactions")
-    private List<InferelatorInteraction> interactions;
+    @JsonProperty("clusters")
+    private List<InferelatorCluster> clusters;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("id")
@@ -107,18 +107,18 @@ public class InferelatorRunResult {
         return this;
     }
 
-    @JsonProperty("interactions")
-    public List<InferelatorInteraction> getInteractions() {
-        return interactions;
+    @JsonProperty("clusters")
+    public List<InferelatorCluster> getClusters() {
+        return clusters;
     }
 
-    @JsonProperty("interactions")
-    public void setInteractions(List<InferelatorInteraction> interactions) {
-        this.interactions = interactions;
+    @JsonProperty("clusters")
+    public void setClusters(List<InferelatorCluster> clusters) {
+        this.clusters = clusters;
     }
 
-    public InferelatorRunResult withInteractions(List<InferelatorInteraction> interactions) {
-        this.interactions = interactions;
+    public InferelatorRunResult withClusters(List<InferelatorCluster> clusters) {
+        this.clusters = clusters;
         return this;
     }
 
@@ -134,7 +134,7 @@ public class InferelatorRunResult {
 
     @Override
     public String toString() {
-        return ((((((((((((("InferelatorRunResult"+" [id=")+ id)+", cmonkeyRunResultId=")+ cmonkeyRunResultId)+", seriesId=")+ seriesId)+", organism=")+ organism)+", interactions=")+ interactions)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((("InferelatorRunResult"+" [id=")+ id)+", cmonkeyRunResultId=")+ cmonkeyRunResultId)+", seriesId=")+ seriesId)+", organism=")+ organism)+", clusters=")+ clusters)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

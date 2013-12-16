@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <p>Original spec-file type: ExpressionDataPoint</p>
  * <pre>
  * Represents a particular data point from gene expression data set
- * string gene_id - KBase gene identifier
+ * gene_id gene - KBase gene identifier
  * float expression_value - relative expression value
  * </pre>
  * 
@@ -23,29 +23,29 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "gene_id",
+    "gene",
     "expression_value"
 })
 public class ExpressionDataPoint {
 
-    @JsonProperty("gene_id")
-    private String geneId;
+    @JsonProperty("gene")
+    private String gene;
     @JsonProperty("expression_value")
     private Double expressionValue;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("gene_id")
-    public String getGeneId() {
-        return geneId;
+    @JsonProperty("gene")
+    public String getGene() {
+        return gene;
     }
 
-    @JsonProperty("gene_id")
-    public void setGeneId(String geneId) {
-        this.geneId = geneId;
+    @JsonProperty("gene")
+    public void setGene(String gene) {
+        this.gene = gene;
     }
 
-    public ExpressionDataPoint withGeneId(String geneId) {
-        this.geneId = geneId;
+    public ExpressionDataPoint withGene(String gene) {
+        this.gene = gene;
         return this;
     }
 
@@ -76,7 +76,7 @@ public class ExpressionDataPoint {
 
     @Override
     public String toString() {
-        return ((((((("ExpressionDataPoint"+" [geneId=")+ geneId)+", expressionValue=")+ expressionValue)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((("ExpressionDataPoint"+" [gene=")+ gene)+", expressionValue=")+ expressionValue)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

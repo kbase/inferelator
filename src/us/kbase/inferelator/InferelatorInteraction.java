@@ -15,8 +15,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <p>Original spec-file type: InferelatorInteraction</p>
  * <pre>
  * Represents a interaction found Inferelator
- * string cluster_id - identifier of CmonkeyCluster
- * string regulator_id - kbase id of regulatory gene
+ * gene_id regulator_id - kbase id of regulatory gene
  * double coeff - coefficient
  * </pre>
  * 
@@ -24,34 +23,16 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "cluster_id",
     "regulator_id",
     "coeff"
 })
 public class InferelatorInteraction {
 
-    @JsonProperty("cluster_id")
-    private String clusterId;
     @JsonProperty("regulator_id")
     private String regulatorId;
     @JsonProperty("coeff")
     private Double coeff;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
-    @JsonProperty("cluster_id")
-    public String getClusterId() {
-        return clusterId;
-    }
-
-    @JsonProperty("cluster_id")
-    public void setClusterId(String clusterId) {
-        this.clusterId = clusterId;
-    }
-
-    public InferelatorInteraction withClusterId(String clusterId) {
-        this.clusterId = clusterId;
-        return this;
-    }
 
     @JsonProperty("regulator_id")
     public String getRegulatorId() {
@@ -95,7 +76,7 @@ public class InferelatorInteraction {
 
     @Override
     public String toString() {
-        return ((((((((("InferelatorInteraction"+" [clusterId=")+ clusterId)+", regulatorId=")+ regulatorId)+", coeff=")+ coeff)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((("InferelatorInteraction"+" [regulatorId=")+ regulatorId)+", coeff=")+ coeff)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

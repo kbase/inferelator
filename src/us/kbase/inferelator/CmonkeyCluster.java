@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * string id - identifier of bicluster
  * float residual - residual
  * list<string> dataset_ids - list of experimental conditions 
- * list<string> gene_ids - list of genes from bicluster
+ * list<gene_id> gene_ids - list of genes from bicluster
  * list<CmonkeyMotif> motifs - list of motifs identified for the bicluster, converted to MEME format
  * </pre>
  * 
