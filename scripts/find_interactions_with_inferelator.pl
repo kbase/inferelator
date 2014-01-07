@@ -64,7 +64,7 @@ use Carp;
 =cut
 
 use Getopt::Long;
-use Bio::KBase::cmonkey::Client;
+use Bio::KBase::inferelator::Client;
 use Bio::KBase::AuthToken;
 use Bio::KBase::AuthUser;
 
