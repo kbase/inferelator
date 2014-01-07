@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
@@ -100,9 +101,9 @@ public class InferelatorServerImpl {
 		//get input data and write input files
 		if (jobId != null)
 			updateJobProgress(jobId, "Preparing input...", authPart);
-		String organism = writeClusterStack(jobPath, params, authPart.toString());
 		writeExpressionTable(jobPath, params, authPart.toString());
 		writeTfList(jobPath, params, authPart.toString());
+		CmonkeyRunResult cmonkeyRunResult = writeClusterStack(jobPath, params, authPart.toString());
 		writer.write("Input files created\n");
 		writer.flush();
 		
@@ -114,17 +115,17 @@ public class InferelatorServerImpl {
 				jobPath + inputExpressionFileName + " --outfile "+ jobPath + outputFileName;
 		writer.write("Run Inferelator : " + inferelatorCommandLine + "\n");
 		writer.flush();
-		//Integer exitVal = executeCommand (inferelatorCommandLine, jobPath, jobId, authPart);
-		Integer exitVal = mockExecuteCommand (inferelatorCommandLine, jobPath, jobId, authPart);
+		Integer exitVal = executeCommand (inferelatorCommandLine, jobPath, jobId, authPart);
+		//Integer exitVal = mockExecuteCommand (inferelatorCommandLine, jobPath, jobId, authPart);
 		writer.write("Exit value : " + exitVal.toString() + "\n");
 		writer.flush();
 		
 		//parse output file  
 		if (jobId != null) updateJobProgress (jobId, "Inferelator finished. Processing output...", authPart);
-		InferelatorRunResult runResult = parseInferelatorOutput (jobPath+outputFileName);
+		InferelatorRunResult runResult = parseInferelatorOutput (jobPath+outputFileName, cmonkeyRunResult);
 		runResult.setParams(params);
-		if (organism != null) 
-			runResult.setOrganism(organism);
+		if (cmonkeyRunResult.getNetwork().getGenomeName() != null) 
+			runResult.setOrganism(cmonkeyRunResult.getNetwork().getGenomeName());
 		writer.write("Result ID : " + runResult.getId() + "\n");
 		writer.flush();
 
@@ -200,10 +201,9 @@ public class InferelatorServerImpl {
 		series = null;
 	}
 
-	protected static String writeClusterStack(String jobPath, InferelatorRunParameters params,
+	protected static CmonkeyRunResult writeClusterStack(String jobPath, InferelatorRunParameters params,
 			String token) throws IOException, TokenFormatException, JsonClientException {
 		CmonkeyRunResult cmonkeyRunResult = WsDeluxeUtil.getObjectFromWsByRef(params.getCmonkeyRunResultWsRef(), token).getData().asClassInstance(CmonkeyRunResult.class);
-		String returnVal = cmonkeyRunResult.getNetwork().getGenomeName();
 		BufferedWriter writer = new BufferedWriter(new FileWriter(jobPath+inputNetworkFileName));
 			writer.write("[");
 
@@ -241,10 +241,10 @@ public class InferelatorServerImpl {
 				}
 			}
 		writer.close();
-		return returnVal;
+		return cmonkeyRunResult;
 	}
 
-	protected static InferelatorRunResult parseInferelatorOutput(String fileName) throws JsonProcessingException, IOException, JsonClientException {
+	protected static InferelatorRunResult parseInferelatorOutput(String fileName, CmonkeyRunResult cmonkeyRunResult) throws JsonProcessingException, IOException, JsonClientException {
 		InferelatorRunResult result = new InferelatorRunResult();
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 		result.setId(getKbaseId(InferelatorRunResult.class.getSimpleName()));
@@ -262,7 +262,8 @@ public class InferelatorServerImpl {
             Iterator<String> hits = clusterValue.fieldNames();
             if (hits.hasNext()){
             	while(hits.hasNext()){
-            		InferelatorHit hit = new InferelatorHit().withBiclusterId(clusterName);
+            		Integer clusterIndex = Integer.valueOf(clusterName) - 1;
+            		InferelatorHit hit = new InferelatorHit().withBiclusterId(cmonkeyRunResult.getNetwork().getClusters().get(clusterIndex).getId());
             		String tfName = hits.next();
             		hit.setTfId(tfName);
             		hit.setCoeff(clusterValue.get(tfName).asDouble());
@@ -347,6 +348,33 @@ public class InferelatorServerImpl {
 	}
 
 	
+/*	protected static void executeCommand(String commandLine,
+			String outputFileName) {
+		BufferedWriter writer = null;
+		try {
+			Process p = Runtime.getRuntime().exec(commandLine);
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+					p.getInputStream()));
+			writer = new BufferedWriter(new FileWriter(outputFileName));
+			String line;
+			while ((line = br.readLine()) != null) {
+				writer.write(line + "\n");
+			}
+			br.close();
+		} catch (IOException e) {
+			System.out.println(e.getLocalizedMessage());
+		} finally {
+			try {
+				if (writer != null)
+					writer.close();
+			} catch (IOException e) {
+				System.out.println(e.getLocalizedMessage());
+			}
+		}
+	}
+*/
+
+/*	
 	//CREATES FAKE OUTPUT FILE
 	protected static Integer mockExecuteCommand(String commandLine, String jobPath, String jobId, AuthToken authPart) throws InterruptedException, IOException {
 		Integer exitVal = 0;
@@ -360,6 +388,7 @@ public class InferelatorServerImpl {
 		bw.close();
 		return exitVal;
 	}
+*/
 	
 	public static void deleteDirectoryRecursively(File startFile) {
 		if (startFile.isDirectory()) {

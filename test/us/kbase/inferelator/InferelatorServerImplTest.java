@@ -19,6 +19,7 @@ import us.kbase.auth.AuthException;
 import us.kbase.auth.AuthService;
 import us.kbase.auth.AuthToken;
 import us.kbase.auth.TokenFormatException;
+import us.kbase.cmonkey.CmonkeyRunResult;
 import us.kbase.common.service.JsonClientException;
 import us.kbase.common.service.Tuple11;
 import us.kbase.common.service.Tuple7;
@@ -86,15 +87,17 @@ public class InferelatorServerImplTest {
 
 	@Test
 	public final void testParseInferelatorOutput() throws Exception {
+		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
 		String testFile = "test/outfile";
-		InferelatorRunResult result = InferelatorServerImpl.parseInferelatorOutput(testFile);
+		CmonkeyRunResult cmonkeyRunResult = WsDeluxeUtil.getObjectFromWsByRef(testCmonkeyRunResultRef, token.toString()).getData().asClassInstance(CmonkeyRunResult.class);
+		InferelatorRunResult result = InferelatorServerImpl.parseInferelatorOutput(testFile, cmonkeyRunResult);
 		//System.out.println(result.getInteractions().size());
 		assertNotNull(result);
 		assertNotNull(result.getHits().get(0));
-		assertNull(result.getHits().get(0).getBiclusterId());
-		assertEquals(13, result.getHits().size());
-		assertEquals("VNG5176C", result.getHits().get(39).getTfId());
-		assertEquals(Double.valueOf("0.2599"), result.getHits().get(39).getCoeff());
+		assertEquals("kb|cmonkeycluster.3620", result.getHits().get(0).getBiclusterId());
+		assertEquals(1629, result.getHits().size());
+		assertEquals("kb|feature.4272", result.getHits().get(0).getTfId());
+		assertEquals(Double.valueOf("0.12954"), result.getHits().get(0).getCoeff());
 	}
 
 	@Test
@@ -290,6 +293,36 @@ public class InferelatorServerImplTest {
 
 	}	
 
+	
+	@Test
+	public void testWhichR() {
+		String testFileName = "test/javaoutput.txt";
+		InferelatorServerImpl.executeCommand("which R", testFileName);
+		String line = null;
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(testFileName));
+			line = br.readLine();
+			br.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				Runtime.getRuntime().exec("rm " + testFileName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		assertEquals("                    MEME — Multiple EM for Motif Elicitation", line);
+	}
+
+	
+	
+	
+	
+	
 	@Test
 	public void testInferelatorCaller() throws AuthException, IOException, JsonClientException {
 		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
