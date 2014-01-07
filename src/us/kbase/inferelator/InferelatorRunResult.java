@@ -16,11 +16,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <p>Original spec-file type: InferelatorRunResult</p>
  * <pre>
  * Represents data from a single run of Inferelator
- * string id - identifier of cMonkey run
- * string cmonkey_run_result_id - kbase id of input CmonkeyRunResult
- * string series_id - kbase id of expression data series
+ * string id - identifier of Inferelator run result
  * string organism - organism name
- * list <InferelatorCluster> clusters
+ * InferelatorRunParameters params - run parameters
+ * list <InferelatorHit> hits - list of hits
  * </pre>
  * 
  */
@@ -28,23 +27,30 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "id",
-    "cmonkey_run_result_id",
-    "series_id",
     "organism",
-    "clusters"
+    "params",
+    "hits"
 })
 public class InferelatorRunResult {
 
     @JsonProperty("id")
     private String id;
-    @JsonProperty("cmonkey_run_result_id")
-    private String cmonkeyRunResultId;
-    @JsonProperty("series_id")
-    private String seriesId;
     @JsonProperty("organism")
     private String organism;
-    @JsonProperty("clusters")
-    private List<InferelatorCluster> clusters;
+    /**
+     * <p>Original spec-file type: InferelatorRunParameters</p>
+     * <pre>
+     * Contains parameters of Inferelator run
+     * gene_list_ref tf_list_ws_ref - ref to transcription factor ids list
+     * cmonkey_run_result_ref cmonkey_run_result_ws_ref - ref to cMonkey run result
+     * expression_series_ref expression_series_ws_ref - ref to expression data series
+     * </pre>
+     * 
+     */
+    @JsonProperty("params")
+    private InferelatorRunParameters params;
+    @JsonProperty("hits")
+    private List<InferelatorHit> hits;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("id")
@@ -59,36 +65,6 @@ public class InferelatorRunResult {
 
     public InferelatorRunResult withId(String id) {
         this.id = id;
-        return this;
-    }
-
-    @JsonProperty("cmonkey_run_result_id")
-    public String getCmonkeyRunResultId() {
-        return cmonkeyRunResultId;
-    }
-
-    @JsonProperty("cmonkey_run_result_id")
-    public void setCmonkeyRunResultId(String cmonkeyRunResultId) {
-        this.cmonkeyRunResultId = cmonkeyRunResultId;
-    }
-
-    public InferelatorRunResult withCmonkeyRunResultId(String cmonkeyRunResultId) {
-        this.cmonkeyRunResultId = cmonkeyRunResultId;
-        return this;
-    }
-
-    @JsonProperty("series_id")
-    public String getSeriesId() {
-        return seriesId;
-    }
-
-    @JsonProperty("series_id")
-    public void setSeriesId(String seriesId) {
-        this.seriesId = seriesId;
-    }
-
-    public InferelatorRunResult withSeriesId(String seriesId) {
-        this.seriesId = seriesId;
         return this;
     }
 
@@ -107,18 +83,53 @@ public class InferelatorRunResult {
         return this;
     }
 
-    @JsonProperty("clusters")
-    public List<InferelatorCluster> getClusters() {
-        return clusters;
+    /**
+     * <p>Original spec-file type: InferelatorRunParameters</p>
+     * <pre>
+     * Contains parameters of Inferelator run
+     * gene_list_ref tf_list_ws_ref - ref to transcription factor ids list
+     * cmonkey_run_result_ref cmonkey_run_result_ws_ref - ref to cMonkey run result
+     * expression_series_ref expression_series_ws_ref - ref to expression data series
+     * </pre>
+     * 
+     */
+    @JsonProperty("params")
+    public InferelatorRunParameters getParams() {
+        return params;
     }
 
-    @JsonProperty("clusters")
-    public void setClusters(List<InferelatorCluster> clusters) {
-        this.clusters = clusters;
+    /**
+     * <p>Original spec-file type: InferelatorRunParameters</p>
+     * <pre>
+     * Contains parameters of Inferelator run
+     * gene_list_ref tf_list_ws_ref - ref to transcription factor ids list
+     * cmonkey_run_result_ref cmonkey_run_result_ws_ref - ref to cMonkey run result
+     * expression_series_ref expression_series_ws_ref - ref to expression data series
+     * </pre>
+     * 
+     */
+    @JsonProperty("params")
+    public void setParams(InferelatorRunParameters params) {
+        this.params = params;
     }
 
-    public InferelatorRunResult withClusters(List<InferelatorCluster> clusters) {
-        this.clusters = clusters;
+    public InferelatorRunResult withParams(InferelatorRunParameters params) {
+        this.params = params;
+        return this;
+    }
+
+    @JsonProperty("hits")
+    public List<InferelatorHit> getHits() {
+        return hits;
+    }
+
+    @JsonProperty("hits")
+    public void setHits(List<InferelatorHit> hits) {
+        this.hits = hits;
+    }
+
+    public InferelatorRunResult withHits(List<InferelatorHit> hits) {
+        this.hits = hits;
         return this;
     }
 
@@ -134,7 +145,7 @@ public class InferelatorRunResult {
 
     @Override
     public String toString() {
-        return ((((((((((((("InferelatorRunResult"+" [id=")+ id)+", cmonkeyRunResultId=")+ cmonkeyRunResultId)+", seriesId=")+ seriesId)+", organism=")+ organism)+", clusters=")+ clusters)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((("InferelatorRunResult"+" [id=")+ id)+", organism=")+ organism)+", params=")+ params)+", hits=")+ hits)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

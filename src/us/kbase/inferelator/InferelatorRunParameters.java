@@ -15,71 +15,71 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <p>Original spec-file type: InferelatorRunParameters</p>
  * <pre>
  * Contains parameters of Inferelator run
- * string gene_list_id - id of transcription factor ids list
- * string cmonkey_run_result_id - id of cMonkey run result
- * string expression_data_series_id - id of expression data series
+ * gene_list_ref tf_list_ws_ref - ref to transcription factor ids list
+ * cmonkey_run_result_ref cmonkey_run_result_ws_ref - ref to cMonkey run result
+ * expression_series_ref expression_series_ws_ref - ref to expression data series
  * </pre>
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "gene_list_id",
-    "cmonkey_run_result_id",
-    "expression_data_series_id"
+    "tf_list_ws_ref",
+    "cmonkey_run_result_ws_ref",
+    "expression_series_ws_ref"
 })
 public class InferelatorRunParameters {
 
-    @JsonProperty("gene_list_id")
-    private String geneListId;
-    @JsonProperty("cmonkey_run_result_id")
-    private String cmonkeyRunResultId;
-    @JsonProperty("expression_data_series_id")
-    private String expressionDataSeriesId;
+    @JsonProperty("tf_list_ws_ref")
+    private String tfListWsRef;
+    @JsonProperty("cmonkey_run_result_ws_ref")
+    private String cmonkeyRunResultWsRef;
+    @JsonProperty("expression_series_ws_ref")
+    private String expressionSeriesWsRef;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("gene_list_id")
-    public String getGeneListId() {
-        return geneListId;
+    @JsonProperty("tf_list_ws_ref")
+    public String getTfListWsRef() {
+        return tfListWsRef;
     }
 
-    @JsonProperty("gene_list_id")
-    public void setGeneListId(String geneListId) {
-        this.geneListId = geneListId;
+    @JsonProperty("tf_list_ws_ref")
+    public void setTfListWsRef(String tfListWsRef) {
+        this.tfListWsRef = tfListWsRef;
     }
 
-    public InferelatorRunParameters withGeneListId(String geneListId) {
-        this.geneListId = geneListId;
+    public InferelatorRunParameters withTfListWsRef(String tfListWsRef) {
+        this.tfListWsRef = tfListWsRef;
         return this;
     }
 
-    @JsonProperty("cmonkey_run_result_id")
-    public String getCmonkeyRunResultId() {
-        return cmonkeyRunResultId;
+    @JsonProperty("cmonkey_run_result_ws_ref")
+    public String getCmonkeyRunResultWsRef() {
+        return cmonkeyRunResultWsRef;
     }
 
-    @JsonProperty("cmonkey_run_result_id")
-    public void setCmonkeyRunResultId(String cmonkeyRunResultId) {
-        this.cmonkeyRunResultId = cmonkeyRunResultId;
+    @JsonProperty("cmonkey_run_result_ws_ref")
+    public void setCmonkeyRunResultWsRef(String cmonkeyRunResultWsRef) {
+        this.cmonkeyRunResultWsRef = cmonkeyRunResultWsRef;
     }
 
-    public InferelatorRunParameters withCmonkeyRunResultId(String cmonkeyRunResultId) {
-        this.cmonkeyRunResultId = cmonkeyRunResultId;
+    public InferelatorRunParameters withCmonkeyRunResultWsRef(String cmonkeyRunResultWsRef) {
+        this.cmonkeyRunResultWsRef = cmonkeyRunResultWsRef;
         return this;
     }
 
-    @JsonProperty("expression_data_series_id")
-    public String getExpressionDataSeriesId() {
-        return expressionDataSeriesId;
+    @JsonProperty("expression_series_ws_ref")
+    public String getExpressionSeriesWsRef() {
+        return expressionSeriesWsRef;
     }
 
-    @JsonProperty("expression_data_series_id")
-    public void setExpressionDataSeriesId(String expressionDataSeriesId) {
-        this.expressionDataSeriesId = expressionDataSeriesId;
+    @JsonProperty("expression_series_ws_ref")
+    public void setExpressionSeriesWsRef(String expressionSeriesWsRef) {
+        this.expressionSeriesWsRef = expressionSeriesWsRef;
     }
 
-    public InferelatorRunParameters withExpressionDataSeriesId(String expressionDataSeriesId) {
-        this.expressionDataSeriesId = expressionDataSeriesId;
+    public InferelatorRunParameters withExpressionSeriesWsRef(String expressionSeriesWsRef) {
+        this.expressionSeriesWsRef = expressionSeriesWsRef;
         return this;
     }
 
@@ -95,7 +95,7 @@ public class InferelatorRunParameters {
 
     @Override
     public String toString() {
-        return ((((((((("InferelatorRunParameters"+" [geneListId=")+ geneListId)+", cmonkeyRunResultId=")+ cmonkeyRunResultId)+", expressionDataSeriesId=")+ expressionDataSeriesId)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((("InferelatorRunParameters"+" [tfListWsRef=")+ tfListWsRef)+", cmonkeyRunResultWsRef=")+ cmonkeyRunResultWsRef)+", expressionSeriesWsRef=")+ expressionSeriesWsRef)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

@@ -2,23 +2,68 @@ package us.kbase.inferelator;
 
 import static org.junit.Assert.*;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import us.kbase.auth.AuthException;
 import us.kbase.auth.AuthService;
 import us.kbase.auth.AuthToken;
+import us.kbase.auth.TokenFormatException;
+import us.kbase.common.service.JsonClientException;
+import us.kbase.common.service.Tuple11;
+import us.kbase.common.service.Tuple7;
 import us.kbase.common.service.UObject;
-import us.kbase.workspaceservice.GetObjectOutput;
-import us.kbase.workspaceservice.GetObjectParams;
+import us.kbase.common.service.UnauthorizedException;
+import us.kbase.userandjobstate.Results;
+import us.kbase.userandjobstate.UserAndJobStateClient;
+import us.kbase.util.DataImporter;
+import us.kbase.util.WsDeluxeUtil;
+import us.kbase.workspace.GetModuleInfoParams;
+import us.kbase.workspace.ListModulesParams;
+import us.kbase.workspace.ListObjectsParams;
+import us.kbase.workspace.ModuleInfo;
+import us.kbase.workspace.ObjectData;
+import us.kbase.workspace.ObjectIdentity;
+import us.kbase.workspace.RegisterTypespecParams;
+import us.kbase.workspace.WorkspaceClient;
 
 
 public class InferelatorServerImplTest {
 
+	private static final String JOB_SERVICE = InferelatorServerConfig.JOB_SERVICE_URL;
+
 	private static final String USER_NAME = "aktest";
 	private static final String PASSWORD = "1475rokegi";
 	private static final String workspaceName = "AKtest";
+	private String genomeRef = "ENIGMA_KBASE/Halobacterium_sp_NRC-1";
+	private String testSeriesRef = "AKtest/Halobacterium_sp_NRC-1_series_250_series";
+	private String testCmonkeyRunResultRef = "AKtest/kb|cmonkeyrunresult.132";
+	private String testTfListRef = "AKtest/kb|genelist.5";
+	
+	private static WorkspaceClient _wsClient = null;
+	private static final String WS_SERVICE_URL = InferelatorServerConfig.WS_SERVICE_URL;
+	protected static WorkspaceClient wsClient(String token) throws TokenFormatException, UnauthorizedException, IOException{
+		if(_wsClient == null)
+		{
+			URL workspaceClientUrl = new URL (WS_SERVICE_URL);
+			AuthToken authToken = new AuthToken(token);
+			_wsClient = new WorkspaceClient(workspaceClientUrl, authToken);
+			_wsClient.setAuthAllowedForHttp(true);
+		}
+		return _wsClient;
+	} 
 
+	
 	@Before
 	public void setUp() throws Exception {
 	}
@@ -42,53 +87,350 @@ public class InferelatorServerImplTest {
 	@Test
 	public final void testParseInferelatorOutput() throws Exception {
 		String testFile = "test/outfile";
-		InferelatorRunResult result = InferelatorServerImpl.parseInferelatorOutput(testFile, Long.parseLong("43"));
+		InferelatorRunResult result = InferelatorServerImpl.parseInferelatorOutput(testFile);
 		//System.out.println(result.getInteractions().size());
 		assertNotNull(result);
-		assertNotNull(result.getClusters().get(0));
-		assertNull(result.getClusters().get(0).getInteractions());
-		assertEquals(13, result.getClusters().get(7).getInteractions().size());
-		assertEquals("VNG5176C", result.getClusters().get(39).getInteractions().get(0).getRegulatorId());
-		assertEquals(Double.valueOf("0.2599"), result.getClusters().get(39).getInteractions().get(0).getCoeff());
+		assertNotNull(result.getHits().get(0));
+		assertNull(result.getHits().get(0).getBiclusterId());
+		assertEquals(13, result.getHits().size());
+		assertEquals("VNG5176C", result.getHits().get(39).getTfId());
+		assertEquals(Double.valueOf("0.2599"), result.getHits().get(39).getCoeff());
 	}
 
 	@Test
-	public final void testCmonkeyJsonExport() throws Exception {
+	public final void testWriteClusterStack() throws Exception {
 		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
-		//String id = "TestCmonkeyRunResult";
-		String id = "CmonkeyResultForInferelatorTest";
-		GetObjectParams objectParams = new GetObjectParams().withType("CmonkeyRunResult").withId(id).withWorkspace(workspaceName).withAuth(token.toString());
-		GetObjectOutput output = InferelatorServerImpl.wsClient(token.toString()).getObject(objectParams);
-		CmonkeyRunResult result = UObject.transformObjectToObject(output.getData(), CmonkeyRunResult.class);
+		//System.out.println(token.toString());
+		String name = "AKtest/kb|cmonkeyrunresult.122";
+		InferelatorRunParameters params = new InferelatorRunParameters().withCmonkeyRunResultWsRef(name);
+		InferelatorServerImpl.writeClusterStack("test/", params, token.toString());
+	}
 
-		String resultJson = "[";
+	@Test
+	public void testWsRegisterType() throws Exception {
 		
-		for (CmonkeyCluster cluster: result.getNetwork().getClusters()){
-			resultJson += "{";
-			resultJson += "\"nrows\": "+cluster.getGeneIds().size()+",";
-			resultJson += "\"ncols\": "+cluster.getDatasetIds().size()+",";
-			resultJson += "\"rows\": [";
-			for (String geneId : cluster.getGeneIds()){
-				resultJson += "\""+geneId+"\",";
+		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
+		RegisterTypespecParams params = new RegisterTypespecParams();
+		String specFileName = "/home/kbase/dev_container/modules/inferelator/kbase_inferelator.spec";
+		String spec = "";
+		BufferedReader br = null;
+		try {
+			String line = null;
+			br = new BufferedReader(new FileReader(specFileName));
+			while ((line = br.readLine()) != null) {
+				spec += line + "\n";
 			}
-			resultJson = resultJson.substring(0, resultJson.length() - 1);
-			resultJson += "], ";
-			resultJson += "\"cols\": [";
-			for (String condition : cluster.getDatasetIds()){
-				resultJson += "\""+condition+"\",";
+		} catch (IOException e) {
+			System.out.println(specFileName + "read error\n" + e.getLocalizedMessage());
+		} finally {
+			if (br != null) {
+				br.close();
 			}
-			resultJson = resultJson.substring(0, resultJson.length() - 1);
-			resultJson += "], ";
-			resultJson += "\"k\": "+cluster.getId()+",";
-			resultJson += "\"resid\": "+cluster.getResidual()+"},";
 		}
-		resultJson = resultJson.substring(0, resultJson.length() - 1);
-		resultJson += "]";
-		
-		System.out.println(resultJson);
+		params.setSpec(spec);
+
+		params.setMod("Inferelator");
+		List<String> types = new ArrayList<String>();
+		types.add("GeneList");
+		types.add("InferelatorRunResult");
+
+		params.setNewTypes(types);
+		Map<String,String> result = WsDeluxeUtil.wsClient(token.toString()).registerTypespec(params);
+		System.out.println(result.toString());
 		assertNotNull(result);
 		
 	}
 
+	@Test
+	public void testWsListType() throws Exception {
+		
+		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
+		ListModulesParams params = new ListModulesParams(); 
+		params.setOwner("kazakov");
+		List<String> modulenames = WsDeluxeUtil.wsClient(token.toString()).listModules(params);
+		for(String modulename: modulenames){
+			System.out.println(modulename);
+		}
+		assertNotNull(modulenames);
+		assertEquals(modulenames.get(0), "Cmonkey");
+		
+	}
+
+	@Test
+	public void testWsModuleInfo() throws Exception {
+		
+		AuthToken token = AuthService.login("kazakov", new String("1475.kafa")).getToken();
+		GetModuleInfoParams params = new GetModuleInfoParams(); 
+		params.setMod("Sequences");
+		ModuleInfo moduleInfo = WsDeluxeUtil.wsClient(token.toString()).getModuleInfo(params);
+		System.out.println("Description " + moduleInfo.getDescription());
+		System.out.println("Owners " + moduleInfo.getOwners().toString());
+		System.out.println("Spec " + moduleInfo.getSpec());
+		System.out.println("Functions " + moduleInfo.getFunctions().toString());
+		System.out.println("Versions " + moduleInfo.getVer());
+		System.out.println("Types " + moduleInfo.getTypes().toString());
+		
+		assertNotNull(moduleInfo);
+	}
+
+	@Test
+	public void testImportGeneList() throws Exception {
+		
+		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
+		String fileName = "test/tfsfile.txt";
+		GeneList geneList = DataImporter.importGeneList(fileName, genomeRef, token.toString());
+		for (String gene: geneList.getGenes()){
+			System.out.println(gene);
+			
+		}
+		WsDeluxeUtil.saveObjectToWorkspace(UObject.transformObjectToObject(
+				geneList, UObject.class), "Inferelator.GeneList", workspaceName, "Halobacterium_sp_NRC-1_TFs", token.toString());
+		assertNotNull(geneList);
+	}
+
+/*	@Test
+	public void testWsTypeInfo() throws Exception {
+		
+		AuthToken token = AuthService.login(ADMIN_USER_NAME, new String(ADMIN_PASSWORD)).getToken();
+		String type = "InferelatorRunResult"; 
+		TypeInfo typeInfo = InferelatorServerImpl.wsClient(token.toString()).getTypeInfo(type);
+		System.out.println("Description " + typeInfo.getDescription());
+		System.out.println("Type definition from spec " + typeInfo.getSpecDef());
+		System.out.println("Type definition " + typeInfo.getTypeDef());
+		System.out.println("Module versions " + typeInfo.getModuleVers().toString());
+		System.out.println("Type versions " + typeInfo.getTypeVers().toString());
+		System.out.println("Used types " + typeInfo.getUsedTypeDefs().toString());
+		System.out.println("Using functions " + typeInfo.getUsingFuncDefs().toString());
+		System.out.println("Using types " + typeInfo.getUsingTypeDefs().toString());
+		
+		assertNotNull(typeInfo);
+	}	
+*/	
+	/*@Test
+	public void testWsCreate() throws Exception {
+		
+		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
+		CreateWorkspaceParams params = new CreateWorkspaceParams(); 
+		params.setWorkspace("AKtest");
+		Tuple8<Long, String, String, String, Long, String, String, String> result = InferelatorServerImpl.wsClient(token.toString()).createWorkspace(params);
+		System.out.println(result.getE1());
+		System.out.println(result.getE2());
+		System.out.println(result.getE3());
+		System.out.println(result.getE4());
+		System.out.println(result.getE5());
+		System.out.println(result.getE6());
+		System.out.println(result.getE7());
+		System.out.println(result.getE8());
+		assertNotNull(result);
+		
+	}*/
+
+
+	@Test
+	public final void testWriteInputTable() throws AuthException, IOException, JsonClientException {
+		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
+		InferelatorRunParameters params = new InferelatorRunParameters().withExpressionSeriesWsRef(testSeriesRef);
+		InferelatorServerImpl.writeExpressionTable("test/1/", params, token.toString());
+		assertTrue(new File("test/1/ratios.tsv").exists());
+	}
+
+	@Test
+	public void testWsListObjects() throws Exception {
+		AuthToken authToken = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
+		ListObjectsParams params = new ListObjectsParams();
+		//String type = "ExpressionServices.ExpressionSeries-1.0";
+		List<String> workspaces = new ArrayList<String>();
+		workspaces.add(workspaceName);
+		//workspaces.add("networks_typed_objects_examples");
+		//params.setType(type);
+		params.setWorkspaces(workspaces);
+		List<Tuple11<Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>>> typeInfo = WsDeluxeUtil.wsClient(authToken.toString()).listObjects(params);
+		for (Tuple11<Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> object: typeInfo){
+			System.out.println(object.getE3() + " : " + object.getE2());
+		}
+		/*System.out.println(typeInfo.get(0).getE1());
+		System.out.println(typeInfo.get(0).getE2());
+		System.out.println(typeInfo.get(0).getE3());
+		System.out.println(typeInfo.get(0).getE4());
+		System.out.println(typeInfo.get(0).getE5());
+		System.out.println(typeInfo.get(0).getE6());
+		System.out.println(typeInfo.get(0).getE7());
+		System.out.println(typeInfo.get(0).getE8());
+		System.out.println(typeInfo.get(0).getE9());
+		System.out.println(typeInfo.get(0).getE10());
+		System.out.println(typeInfo.get(0).getE11());*/
+		
+		assertNotNull(typeInfo);
+	}	
+
+	
+	@Test
+	public void testWsReadObject() throws Exception {
+		AuthToken authToken = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
+		String name = "kb|genelist.5";
+		//String exampleWs = "networks_typed_objects_examples";
+		
+		ObjectData output = WsDeluxeUtil.getObjectFromWorkspace(workspaceName, name, authToken.toString());
+		System.out.println(output.getData().toString());
+		assertNotNull(output);
+
+	}	
+	
+
+	@Test
+	public void testWsDeleteObject() throws Exception {
+		AuthToken authToken = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
+		String name = "kb|cmonkeyrunresult.136";
+		String ref = workspaceName + "/" + name;
+		
+		List<ObjectIdentity> objectsIdentity = new ArrayList<ObjectIdentity>();
+		ObjectIdentity objectIdentity = new ObjectIdentity().withRef(ref);
+		objectsIdentity.add(objectIdentity);
+		WsDeluxeUtil.wsClient(authToken.toString()).deleteObjects(objectsIdentity);
+
+	}	
+
+	@Test
+	public void testInferelatorCaller() throws AuthException, IOException, JsonClientException {
+		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
+		InferelatorRunParameters params = new InferelatorRunParameters().withCmonkeyRunResultWsRef(testCmonkeyRunResultRef).withExpressionSeriesWsRef(testSeriesRef).withTfListWsRef(testTfListRef);
+		String jobId = InferelatorServerCaller.findInteractionsWithInferelator(workspaceName, params, token);
+		
+		System.out.println("Job ID = " + jobId);
+		assertNotNull(jobId);
+		
+		String status = "";
+		Integer waitingTime = 2;
+		String resultId = null;
+		
+		URL jobServiceUrl = new URL(JOB_SERVICE);
+		UserAndJobStateClient jobClient = new UserAndJobStateClient(jobServiceUrl, token);
+
+		while (!status.equalsIgnoreCase("finished")){
+			
+			try {
+			    Thread.sleep(120000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		
+			try {
+				Tuple7<String,String,String,Long,String,Long,Long> t = jobClient.getJobStatus(jobId); 
+				//System.out.println(t.getE1());
+				//System.out.println(t.getE2());
+				status = t.getE3();
+				//System.out.println(t.getE3());//Status
+				//System.out.println(t.getE4());
+				//System.out.println(t.getE5());
+				//System.out.println(t.getE6());
+				//System.out.println(t.getE7());
+				System.out.println("Waiting time: "+ waitingTime.toString() + " minutes");
+				waitingTime += 2;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JsonClientException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		try {
+			Results res = jobClient.getResults(jobId);			
+			resultId = res.getWorkspaceids().get(0);
+			System.out.println("Result ID = " + resultId);
+			assertNotNull(resultId);
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String[] resultIdParts = resultId.split("/");
+		resultId = resultIdParts[1];
+		
+		InferelatorRunResult result = WsDeluxeUtil.getObjectFromWorkspace(workspaceName, resultId, token.toString()).getData().asClassInstance(InferelatorRunResult.class);
+		
+		assertEquals(39, result.getHits().size());
+		assertEquals("1", result.getHits().get(0).getBiclusterId());
+
+
+	}
+
+
+	@Test
+	public void testInferelatorServerImpl() throws AuthException, IOException, JsonClientException, InterruptedException {
+		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
+		URL jobServiceUrl = new URL(JOB_SERVICE);
+		UserAndJobStateClient jobClient = new UserAndJobStateClient(
+				jobServiceUrl, token);
+		//jobClient.setAuthAllowedForHttp(true);
+		String jobId = jobClient.createJob();
+
+		
+		InferelatorRunParameters params = new InferelatorRunParameters().withCmonkeyRunResultWsRef(testCmonkeyRunResultRef).withExpressionSeriesWsRef(testSeriesRef).withTfListWsRef(testTfListRef);
+		InferelatorServerImpl.findInteractionsWithInferelator(jobId, workspaceName, params, token, null);
+		System.out.println(jobId);
+		assertNotNull(jobId);
+
+		String status = "";
+		Integer waitingTime = 2;
+		String resultId = null;
+		
+		while (!status.equalsIgnoreCase("finished")){
+			
+			try {
+			    Thread.sleep(120000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		
+			try {
+				Tuple7<String,String,String,Long,String,Long,Long> t = jobClient.getJobStatus(jobId); 
+				//System.out.println(t.getE1());
+				//System.out.println(t.getE2());
+				status = t.getE3();
+				//System.out.println(t.getE3());//Status
+				//System.out.println(t.getE4());
+				//System.out.println(t.getE5());
+				//System.out.println(t.getE6());
+				//System.out.println(t.getE7());
+				System.out.println("Waiting time: "+ waitingTime.toString() + " minutes");
+				waitingTime += 2;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JsonClientException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		try {
+			Results res = jobClient.getResults(jobId);			
+			resultId = res.getWorkspaceids().get(0);
+			System.out.println("Result ID = " + resultId);
+			assertNotNull(resultId);
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String[] resultIdParts = resultId.split("/");
+		resultId = resultIdParts[1];
+		
+		InferelatorRunResult result = WsDeluxeUtil.getObjectFromWorkspace(workspaceName, resultId, token.toString()).getData().asClassInstance(InferelatorRunResult.class);
+		
+		assertEquals(39, result.getHits().size());
+		assertEquals("1", result.getHits().get(0).getBiclusterId());
+
+	}
 
 }

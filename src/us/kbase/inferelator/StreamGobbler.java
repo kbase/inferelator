@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 
 import us.kbase.auth.AuthToken;
+import us.kbase.common.service.JsonClientException;
 
 
 class StreamGobbler extends Thread
@@ -70,6 +71,9 @@ class StreamGobbler extends Thread
         		writer.close();
        		};
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonClientException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
