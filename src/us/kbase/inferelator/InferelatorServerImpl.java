@@ -350,7 +350,7 @@ public class InferelatorServerImpl {
 	//CREATES FAKE OUTPUT FILE
 	protected static Integer mockExecuteCommand(String commandLine, String jobPath, String jobId, AuthToken authPart) throws InterruptedException, IOException {
 		Integer exitVal = 0;
-		BufferedReader br = new BufferedReader(new FileReader("test/inferelator_output.txt"));
+		BufferedReader br = new BufferedReader(new FileReader("/kb/dev_container/modules/inferelator/test/inferelator_output.txt"));
 		BufferedWriter bw = new BufferedWriter(new FileWriter(jobPath+outputFileName));
 		String line = null;
 		while ((line = br.readLine()) != null) {
