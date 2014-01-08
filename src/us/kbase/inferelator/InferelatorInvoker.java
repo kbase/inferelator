@@ -127,14 +127,14 @@ public class InferelatorInvoker {
 			    		else {
 			    			System.err.println( "Unknown method: " + serverMethod + "\n");
 					    	HelpFormatter formatter = new HelpFormatter();
-					    	formatter.printHelp( "java -jar /kb/deployment/cmonkey/cmonkey_cluster.jar [parameters]", options );
+					    	formatter.printHelp( "java -jar /kb/deployment/inferelator/inferelator.jar [parameters]", options );
 			    			System.exit(1);
 			    		}
 	 
 			    	}
 			    	else {
 				    	HelpFormatter formatter = new HelpFormatter();
-				    	formatter.printHelp( "java -jar /kb/deployment/meme/meme_cluster.jar [parameters]", options );
+				    	formatter.printHelp( "java -jar /kb/deployment/inferelator/inferelator.jar [parameters]", options );
 			    		System.exit(1);
 			    	}
 			    }
