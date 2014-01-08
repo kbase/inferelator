@@ -121,7 +121,7 @@ public class InferelatorInvoker {
 			    	if ( validateInput(line)){
 			    		serverMethod = line.getOptionValue( "method" );
 
-			    		if (serverMethod.equalsIgnoreCase("build_cmonkey_network_job_from_ws")){
+			    		if (serverMethod.equalsIgnoreCase("find_interactions_with_inferelator")){
 			    			runInferelator(line);
 			    		}
 			    		else {
