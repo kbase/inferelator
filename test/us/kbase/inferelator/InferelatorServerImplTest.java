@@ -294,7 +294,7 @@ public class InferelatorServerImplTest {
 	}	
 
 	
-	@Test
+/*	@Test
 	public void testWhichR() {
 		String testFileName = "test/javaoutput.txt";
 		InferelatorServerImpl.executeCommand("which R", testFileName);
@@ -315,13 +315,9 @@ public class InferelatorServerImplTest {
 				e.printStackTrace();
 			}
 		}
-		assertEquals("                    MEME — Multiple EM for Motif Elicitation", line);
+		assertEquals("/kb/runtime/bin/R", line);
 	}
-
-	
-	
-	
-	
+*/
 	
 	@Test
 	public void testInferelatorCaller() throws AuthException, IOException, JsonClientException {

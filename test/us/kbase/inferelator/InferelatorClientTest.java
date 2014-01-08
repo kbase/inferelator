@@ -23,8 +23,8 @@ public class InferelatorClientTest {
 	private static final String USER_NAME = "aktest";
 	private static final String PASSWORD = "1475rokegi";
 	private static final String workspaceName = "AKtest";
-	private String serverUrl = "http://localhost:7081";
-	//private String serverUrl = "http://140.221.85.173:7079/";
+	//private String serverUrl = "http://localhost:7081";
+	private String serverUrl = "http://140.221.85.173:7079/";
 	//private String genomeRef = "AKtest/Halobacterium_sp_NRC-1";
 	private String testSeriesRef = "AKtest/Halobacterium_sp_NRC-1_series_250_series";
 	private String testCmonkeyRunResultRef = "AKtest/kb|cmonkeyrunresult.132";
