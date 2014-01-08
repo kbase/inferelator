@@ -238,6 +238,15 @@ public class InferelatorServerImplTest {
 	}
 
 	@Test
+	public final void testWriteTfList() throws AuthException, IOException, JsonClientException {
+		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
+		InferelatorRunParameters params = new InferelatorRunParameters().withTfListWsRef(testTfListRef);
+		String organism = InferelatorServerImpl.writeTfList("test/1/", params, token.toString());
+		System.out.println(organism);
+		assertTrue(new File("test/1/tflist.txt").exists());
+	}
+
+	@Test
 	public void testWsListObjects() throws Exception {
 		AuthToken authToken = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
 		ListObjectsParams params = new ListObjectsParams();

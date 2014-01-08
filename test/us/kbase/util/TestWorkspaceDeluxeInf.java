@@ -29,9 +29,9 @@ import us.kbase.workspace.WorkspaceIdentity;
 
 public class TestWorkspaceDeluxeInf {
 
-	private static final String USER_NAME = "aktest";
-	private static final String PASSWORD = "1475rokegi";
-	private static final String workspaceName = "AKtest";
+	private static final String USER_NAME = "kazakov";
+	private static final String PASSWORD = "1475.kafa";
+	private static final String workspaceName = "ENIGMA_KBASE";
 
 	@Test
 	public void testRegisterModule() throws Exception {
@@ -213,7 +213,7 @@ public class TestWorkspaceDeluxeInf {
 	@Test
 	public void testWsGetObjectInfo() throws Exception {
 		AuthToken authToken = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
-		String name = "kb|inferelatorrunresult.36";
+		String name = "kb|inferelatorrunresult.37";
 		List<ObjectIdentity> objectsIdentity = new ArrayList<ObjectIdentity>();
 		ObjectIdentity objectIdentity = new ObjectIdentity().withName(name)
 				.withWorkspace(workspaceName);
@@ -253,7 +253,7 @@ public class TestWorkspaceDeluxeInf {
 	@Test
 	public void testWsReadObject() throws Exception {
 		AuthToken authToken = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
-		String name = "Halobacterium_sp_NRC-1_TFs";
+		String name = "kb|inferelatorrunresult.37";
 		//String exampleWs = "networks_typed_objects_examples";
 		
 		ObjectData output = WsDeluxeUtil.getObjectFromWorkspace(workspaceName, name, authToken.toString());

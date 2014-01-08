@@ -124,8 +124,8 @@ public class InferelatorServerImpl {
 		if (jobId != null) updateJobProgress (jobId, "Inferelator finished. Processing output...", authPart);
 		InferelatorRunResult runResult = parseInferelatorOutput (jobPath+outputFileName, cmonkeyRunResult);
 		runResult.setParams(params);
-		if (organism != null) 
-			runResult.setOrganism(organism);
+		runResult.setOrganism(organism);
+		writer.write("Result organism : " + runResult.getOrganism() + "\n");
 		writer.write("Result ID : " + runResult.getId() + "\n");
 		writer.flush();
 
