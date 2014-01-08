@@ -213,7 +213,7 @@ public class TestWorkspaceDeluxeInf {
 	@Test
 	public void testWsGetObjectInfo() throws Exception {
 		AuthToken authToken = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
-		String name = "kb|sequenceset.9";
+		String name = "kb|inferelatorrunresult.36";
 		List<ObjectIdentity> objectsIdentity = new ArrayList<ObjectIdentity>();
 		ObjectIdentity objectIdentity = new ObjectIdentity().withName(name)
 				.withWorkspace(workspaceName);
@@ -253,7 +253,7 @@ public class TestWorkspaceDeluxeInf {
 	@Test
 	public void testWsReadObject() throws Exception {
 		AuthToken authToken = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
-		String name = "kb|inferelatorrunresult.34";
+		String name = "Halobacterium_sp_NRC-1_TFs";
 		//String exampleWs = "networks_typed_objects_examples";
 		
 		ObjectData output = WsDeluxeUtil.getObjectFromWorkspace(workspaceName, name, authToken.toString());

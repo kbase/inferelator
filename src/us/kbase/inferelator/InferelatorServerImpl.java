@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
@@ -37,6 +36,7 @@ import us.kbase.common.service.UObject;
 import us.kbase.expressionservices.ExpressionSample;
 import us.kbase.expressionservices.ExpressionSeries;
 import us.kbase.idserverapi.IDServerAPIClient;
+import us.kbase.kbasegenomes.Genome;
 import us.kbase.userandjobstate.InitProgress;
 import us.kbase.userandjobstate.Results;
 import us.kbase.userandjobstate.UserAndJobStateClient;
@@ -102,7 +102,7 @@ public class InferelatorServerImpl {
 		if (jobId != null)
 			updateJobProgress(jobId, "Preparing input...", authPart);
 		writeExpressionTable(jobPath, params, authPart.toString());
-		writeTfList(jobPath, params, authPart.toString());
+		String organism = writeTfList(jobPath, params, authPart.toString());
 		CmonkeyRunResult cmonkeyRunResult = writeClusterStack(jobPath, params, authPart.toString());
 		writer.write("Input files created\n");
 		writer.flush();
@@ -124,8 +124,8 @@ public class InferelatorServerImpl {
 		if (jobId != null) updateJobProgress (jobId, "Inferelator finished. Processing output...", authPart);
 		InferelatorRunResult runResult = parseInferelatorOutput (jobPath+outputFileName, cmonkeyRunResult);
 		runResult.setParams(params);
-		if (cmonkeyRunResult.getNetwork().getGenomeName() != null) 
-			runResult.setOrganism(cmonkeyRunResult.getNetwork().getGenomeName());
+		if (organism != null) 
+			runResult.setOrganism(organism);
 		writer.write("Result ID : " + runResult.getId() + "\n");
 		writer.flush();
 
@@ -143,15 +143,20 @@ public class InferelatorServerImpl {
 		}
 	}
 	
-	protected static void writeTfList(String jobPath,
+	protected static String writeTfList(String jobPath,
 			InferelatorRunParameters params, String token) throws TokenFormatException, IOException, JsonClientException {
-		List<String> inputTfList = WsDeluxeUtil.getObjectFromWsByRef(params.getTfListWsRef(), token).getData().asClassInstance(GeneList.class).getGenes();
+		
+		GeneList inputTfList = WsDeluxeUtil.getObjectFromWsByRef(params.getTfListWsRef(), token).getData().asClassInstance(GeneList.class);
+		Genome genome = WsDeluxeUtil.getObjectFromWsByRef(inputTfList.getSourceId(), token).getData().asClassInstance(Genome.class);
+		String returnVal = genome.getScientificName();
+		genome = null;
 		BufferedWriter writer = new BufferedWriter(new FileWriter(jobPath+inputTflistFileName));
-		for (String tf: inputTfList) {
+		for (String tf: inputTfList.getGenes()) {
 			writer.write(tf + "\n");
 		}
 		writer.close();
 		inputTfList = null;
+		return returnVal;
 	}
 
 	protected static void writeExpressionTable(String jobPath,
