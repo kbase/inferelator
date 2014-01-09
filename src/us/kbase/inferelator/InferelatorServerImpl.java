@@ -58,7 +58,7 @@ public class InferelatorServerImpl {
 	public static final String outputFileName = "outfile.json";
 
 	private static IDServerAPIClient _idClient = null;
-	private static Date date = new Date();
+//	private static Date date = new Date();
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 	
 	protected static IDServerAPIClient idClient() {
@@ -79,11 +79,9 @@ public class InferelatorServerImpl {
 	
 	public static void findInteractionsWithInferelator(String jobId, String wsName, InferelatorRunParameters params, AuthToken authPart, String currentDir) throws IOException, JsonClientException, AuthException, InterruptedException{
 		//start job
-		String desc = "Inferelator service job " + jobId + ". Method: findInteractionsWithInferelator. Input: cmonkeyRunResult " + params.getCmonkeyRunResultWsRef() + 
-				", expressionDataSeries " + params.getExpressionSeriesWsRef() + ", regulators list " + params.getTfListWsRef() + ". Workspace: " + wsName + ".";
-		Long tasks = 6L;
-		if (jobId != null) startJob (jobId, desc, tasks, authPart);
-		
+		if (jobId != null) 
+			updateJobProgress(jobId,
+					"AWE task started. Preparing input...", authPart);
 		//make job directory
 		String jobPath = "";
 		if (deployAwe){
@@ -95,6 +93,7 @@ public class InferelatorServerImpl {
 		}
 		System.setErr(new PrintStream(new File(jobPath + "servererror.txt")));
 		FileWriter writer = new FileWriter(jobPath + "serveroutput.txt");
+		Date date = new Date();
 		writer.write("log file created " + dateFormat.format(date) + "\n");
 		writer.flush();
 
@@ -288,6 +287,7 @@ public class InferelatorServerImpl {
 		InitProgress initProgress = new InitProgress();
 		initProgress.setPtype("task");
 		initProgress.setMax(tasks);
+		Date date = new Date();
 		date.setTime(date.getTime()+108000000L);
 		
 		URL jobServiceUrl = new URL(JOB_SERVICE);
@@ -297,6 +297,7 @@ public class InferelatorServerImpl {
 	}
 
 	protected static void updateJobProgress (String jobId, String status, AuthToken token) throws IOException, JsonClientException{
+		Date date = new Date();
 		date.setTime(date.getTime()+1000000L);
 		URL jobServiceUrl = new URL(JOB_SERVICE);
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(jobServiceUrl, token);

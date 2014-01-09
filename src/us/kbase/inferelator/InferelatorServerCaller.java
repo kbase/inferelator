@@ -9,11 +9,23 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.kbase.auth.AuthToken;
 import us.kbase.auth.TokenFormatException;
+import us.kbase.common.service.JacksonTupleModule;
 import us.kbase.common.service.JsonClientException;
+import us.kbase.common.service.ServerException;
+import us.kbase.userandjobstate.InitProgress;
 import us.kbase.userandjobstate.UserAndJobStateClient;
 
 public class InferelatorServerCaller {
@@ -25,13 +37,25 @@ public class InferelatorServerCaller {
 	
 	private static Integer connectionReadTimeOut = 30 * 60 * 1000;
 
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat(
+			"yyyy-MM-dd'T'HH:mm:ssZ");
+
 	public static String findInteractionsWithInferelator(String wsName, InferelatorRunParameters params, AuthToken authPart) throws TokenFormatException, JsonClientException, IOException{
 		
 		URL jobServiceUrl = new URL(JOB_SERVICE);
+		Date date = new Date();
+		date.setTime(date.getTime() + 10000L);
+
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(
 				jobServiceUrl, authPart);
 		//jobClient.setAuthAllowedForHttp(true);
 		String returnVal = jobClient.createJob();
+		jobClient.startJob(returnVal, authPart.toString(),
+				"Starting new Cmonkey service job...",
+				"Inferelator service job " + returnVal + ". Method: findInteractionsWithInferelator. Input: cmonkeyRunResult " + params.getCmonkeyRunResultWsRef() + 
+				", expressionDataSeries " + params.getExpressionSeriesWsRef() + ", regulators list " + params.getTfListWsRef() + ". Workspace: " + wsName + ".",
+				new InitProgress().withPtype("task").withMax(5L),
+				dateFormat.format(date));
 		jobClient = null;
 		
 		if (deployAwe) {
@@ -48,7 +72,10 @@ public class InferelatorServerCaller {
 					out.close();
 				}
 			}
+			
 			String result = executePost(jsonArgs);
+			reportAweStatus(authPart, returnVal, result);
+
 			if (InferelatorServerConfig.LOG_AWE_CALLS) {
 				System.out.println(result);
 				PrintWriter out = new PrintWriter(new FileWriter(
@@ -132,6 +159,42 @@ public class InferelatorServerCaller {
 			connection.disconnect();
 		}
 		return response.toString();
+	}
+
+	protected static void updateJobProgress(String jobId, String status,
+			Long tasks, String token) throws TokenFormatException,
+			MalformedURLException, IOException, JsonClientException {
+		Date date = new Date();
+		date.setTime(date.getTime() + 10000L);
+		UserAndJobStateClient jobClient = new UserAndJobStateClient(new URL(
+				JOB_SERVICE), new AuthToken(token));
+		// jobClient.setAuthAllowedForHttp(true);
+		jobClient.updateJobProgress(jobId, token, status, tasks,
+				dateFormat.format(date));
+		jobClient = null;
+	}
+
+	protected static void reportAweStatus(AuthToken authPart, String returnVal,
+			String result) throws IOException, JsonProcessingException,
+			TokenFormatException, MalformedURLException, JsonClientException,
+			JsonParseException, JsonMappingException, ServerException {
+		JsonNode rootNode = new ObjectMapper().registerModule(new JacksonTupleModule()).readTree(result);
+		String aweId = "";
+		if (rootNode.has("data")){
+			JsonNode dataNode = rootNode.get("data");
+			if (dataNode.has("id")){
+				aweId = AWE_SERVICE + "/" + dataNode.get("id").textValue();
+				System.out.println(aweId);
+				updateJobProgress(returnVal, "AWE job submitted: " + aweId, 1L, authPart.toString());
+			}
+		}
+		if (rootNode.has("error")){
+			if (rootNode.get("error").textValue()!=null){
+				System.out.println(rootNode.get("error").textValue());
+				updateJobProgress(returnVal, "AWE reported error on job " + aweId, 1L, authPart.toString());
+				throw new ServerException(rootNode.get("error").textValue(), 0, "Unknown", null);
+			}
+		}
 	}
 
 }
