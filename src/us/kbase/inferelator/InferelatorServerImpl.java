@@ -16,9 +16,11 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -102,7 +104,7 @@ public class InferelatorServerImpl {
 			updateJobProgress(jobId, "Preparing input...", authPart);
 		writeExpressionTable(jobPath, params, authPart.toString());
 		String organism = writeTfList(jobPath, params, authPart.toString());
-		CmonkeyRunResult cmonkeyRunResult = writeClusterStack(jobPath, params, authPart.toString());
+		HashMap<String, String> clusterIds = writeClusterStack(jobPath, params, authPart.toString());
 		writer.write("Input files created\n");
 		writer.flush();
 		
@@ -121,7 +123,7 @@ public class InferelatorServerImpl {
 		
 		//parse output file  
 		if (jobId != null) updateJobProgress (jobId, "Inferelator finished. Processing output...", authPart);
-		InferelatorRunResult runResult = parseInferelatorOutput (jobPath+outputFileName, cmonkeyRunResult);
+		InferelatorRunResult runResult = parseInferelatorOutput (jobPath+outputFileName, clusterIds);
 		runResult.setParams(params);
 		runResult.setOrganism(organism);
 		writer.write("Result organism : " + runResult.getOrganism() + "\n");
@@ -205,13 +207,14 @@ public class InferelatorServerImpl {
 		series = null;
 	}
 
-	protected static CmonkeyRunResult writeClusterStack(String jobPath, InferelatorRunParameters params,
+	protected static HashMap<String, String> writeClusterStack(String jobPath, InferelatorRunParameters params,
 			String token) throws IOException, TokenFormatException, JsonClientException {
+		HashMap<String, String> returnVal = new HashMap<String, String>();
 		CmonkeyRunResult cmonkeyRunResult = WsDeluxeUtil.getObjectFromWsByRef(params.getCmonkeyRunResultWsRef(), token).getData().asClassInstance(CmonkeyRunResult.class);
 		BufferedWriter writer = new BufferedWriter(new FileWriter(jobPath+inputNetworkFileName));
 			writer.write("[");
 
-			int clusterNumber = 1;
+			Integer clusterNumber = 1;
 			for (int i = 0; i < cmonkeyRunResult.getNetwork().getClusters().size(); i++){
 				CmonkeyCluster cluster =  cmonkeyRunResult.getNetwork().getClusters().get(i);
 				writer.write(" \n{\n");
@@ -236,6 +239,7 @@ public class InferelatorServerImpl {
 					}
 				}
 				writer.write("\"k\": "+clusterNumber+",\n");
+				returnVal.put(clusterNumber.toString(), cluster.getId());
 				clusterNumber++;
 				writer.write("\"resid\": "+cluster.getResidual()+"\n}");
 				if (i < cmonkeyRunResult.getNetwork().getClusters().size() - 1) {
@@ -245,10 +249,11 @@ public class InferelatorServerImpl {
 				}
 			}
 		writer.close();
-		return cmonkeyRunResult;
+		cmonkeyRunResult = null;
+		return returnVal;
 	}
 
-	protected static InferelatorRunResult parseInferelatorOutput(String fileName, CmonkeyRunResult cmonkeyRunResult) throws JsonProcessingException, IOException, JsonClientException {
+	protected static InferelatorRunResult parseInferelatorOutput(String fileName, HashMap<String, String> clusterIds) throws JsonProcessingException, IOException, JsonClientException {
 		InferelatorRunResult result = new InferelatorRunResult();
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 		result.setId(getKbaseId(InferelatorRunResult.class.getSimpleName()));
@@ -266,8 +271,7 @@ public class InferelatorServerImpl {
             Iterator<String> hits = clusterValue.fieldNames();
             if (hits.hasNext()){
             	while(hits.hasNext()){
-            		Integer clusterIndex = Integer.valueOf(clusterName) - 1;
-            		InferelatorHit hit = new InferelatorHit().withBiclusterId(cmonkeyRunResult.getNetwork().getClusters().get(clusterIndex).getId());
+            		InferelatorHit hit = new InferelatorHit().withBiclusterId(clusterIds.get(clusterName));
             		String tfName = hits.next();
             		hit.setTfId(tfName);
             		hit.setCoeff(clusterValue.get(tfName).asDouble());

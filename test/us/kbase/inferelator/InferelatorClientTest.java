@@ -24,8 +24,8 @@ public class InferelatorClientTest {
 	private static final String PASSWORD = "1475rokegi";
 	private static final String workspaceName = "AKtest";
 	
-	private String serverUrl = "http://localhost:7081";
-	//private String serverUrl = "http://140.221.85.173:7079/";
+//	private String serverUrl = "http://localhost:7081";
+	private String serverUrl = "http://140.221.85.173:7079/";
 	//private String genomeRef = "AKtest/Halobacterium_sp_NRC-1";
 
 /*	private String testSeriesRef = "ENIGMA_KBASE/Halobacterium_sp_NRC-1_series_250_series";
@@ -34,9 +34,9 @@ public class InferelatorClientTest {
 */
 	
 	
-	private String testSeriesRef = "AKtest/Halobacterium_sp_NRC-1_series_250_series";
-	private String testCmonkeyRunResultRef = "AKtest/kb|cmonkeyrunresult.132";
-	private String testTfListRef = "AKtest/kb|genelist.5";
+	private String testSeriesRef = "AKtest/D_vulgaris_series_series";//"AKtest/Halobacterium_sp_NRC-1_series_250_series";
+	private String testCmonkeyRunResultRef = "AKtest/kb|cmonkeyrunresult.139";//"AKtest/kb|cmonkeyrunresult.132";
+	private String testTfListRef = "AKtest/D_vulgaris_Hildenborough_TFs";//"AKtest/kb|genelist.5";
 
 	@Test
 	public void testFindInteractionsWithInferelator() throws AuthException, IOException, JsonClientException {

@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ import us.kbase.auth.AuthException;
 import us.kbase.auth.AuthService;
 import us.kbase.auth.AuthToken;
 import us.kbase.auth.TokenFormatException;
+import us.kbase.cmonkey.CmonkeyCluster;
 import us.kbase.cmonkey.CmonkeyRunResult;
 import us.kbase.common.service.JsonClientException;
 import us.kbase.common.service.Tuple11;
@@ -46,7 +48,7 @@ public class InferelatorServerImplTest {
 	private static final String USER_NAME = "aktest";
 	private static final String PASSWORD = "1475rokegi";
 	private static final String workspaceName = "AKtest";
-	private String genomeRef = "ENIGMA_KBASE/Halobacterium_sp_NRC-1";
+	private String genomeRef = "AKtest/Desulfovibrio_vulgaris_Hildenborough";//"ENIGMA_KBASE/Halobacterium_sp_NRC-1";
 	private String testSeriesRef = "AKtest/Halobacterium_sp_NRC-1_series_250_series";
 	private String testCmonkeyRunResultRef = "AKtest/kb|cmonkeyrunresult.132";
 	private String testTfListRef = "AKtest/kb|genelist.5";
@@ -88,9 +90,21 @@ public class InferelatorServerImplTest {
 	@Test
 	public final void testParseInferelatorOutput() throws Exception {
 		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
-		String testFile = "test/outfile";
+		String testFile = "test/outfile";//"/home/kbase/Documents/dvh/dvh-inferelator.json";//
 		CmonkeyRunResult cmonkeyRunResult = WsDeluxeUtil.getObjectFromWsByRef(testCmonkeyRunResultRef, token.toString()).getData().asClassInstance(CmonkeyRunResult.class);
-		InferelatorRunResult result = InferelatorServerImpl.parseInferelatorOutput(testFile, cmonkeyRunResult);
+		HashMap<String, String> clusterIds = new HashMap<String, String>();
+		Integer clusterNumber = 1;
+		for (int i = 0; i < cmonkeyRunResult.getNetwork().getClusters().size(); i++){
+			CmonkeyCluster cluster =  cmonkeyRunResult.getNetwork().getClusters().get(i);
+			clusterIds.put(clusterNumber.toString(), cluster.getId());
+			clusterNumber++;
+		}
+		
+		InferelatorRunResult result = InferelatorServerImpl.parseInferelatorOutput(testFile, clusterIds);
+/*		result.setParams(new InferelatorRunParameters().withCmonkeyRunResultWsRef(testCmonkeyRunResultRef).withExpressionSeriesWsRef(testSeriesRef).withTfListWsRef(testTfListRef));
+		result.setOrganism("Desulfovibrio vulgaris str. Hildenborough");
+		WsDeluxeUtil.saveObjectToWorkspace(UObject.transformObjectToObject(result, UObject.class), "Inferelator.InferelatorRunResult", "AKtest", "D_vulgaris_Hildenborough_inferelator_result", token.toString());
+*/
 		//System.out.println(result.getInteractions().size());
 		assertNotNull(result);
 		assertNotNull(result.getHits().get(0));
@@ -180,14 +194,14 @@ public class InferelatorServerImplTest {
 	public void testImportGeneList() throws Exception {
 		
 		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
-		String fileName = "test/tfsfile.txt";
+		String fileName = "/home/kbase/Documents/dvh/dvh-tflist.txt";
 		GeneList geneList = DataImporter.importGeneList(fileName, genomeRef, token.toString());
 		for (String gene: geneList.getGenes()){
 			System.out.println(gene);
 			
 		}
 		WsDeluxeUtil.saveObjectToWorkspace(UObject.transformObjectToObject(
-				geneList, UObject.class), "Inferelator.GeneList", workspaceName, "Halobacterium_sp_NRC-1_TFs", token.toString());
+				geneList, UObject.class), "Inferelator.GeneList", workspaceName, "D_vulgaris_Hildenborough_TFs", token.toString());
 		assertNotNull(geneList);
 	}
 
