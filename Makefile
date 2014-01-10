@@ -84,6 +84,7 @@ distrib:
 	cp -f ./dist/service.war $(TARGET_DIR)
 	cp -f ./glassfish_start_service.sh $(TARGET_DIR)
 	cp -f ./glassfish_stop_service.sh $(TARGET_DIR)
+	cp -f ./inferelator.awf $(TARGET_DIR)
 	echo "./glassfish_start_service.sh $(TARGET_DIR)/service.war $(TARGET_PORT) $(THREADPOOL_SIZE)" > $(TARGET_DIR)/start_service.sh
 	chmod +x $(TARGET_DIR)/start_service.sh
 	echo "./glassfish_stop_service.sh $(TARGET_PORT)" > $(TARGET_DIR)/stop_service.sh

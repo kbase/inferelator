@@ -329,7 +329,7 @@ public class InferelatorServerImplTest {
 */
 	
 	@Test
-	public void testInferelatorCaller() throws AuthException, IOException, JsonClientException {
+	public void testInferelatorCaller() throws Exception {
 		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
 		InferelatorRunParameters params = new InferelatorRunParameters().withCmonkeyRunResultWsRef(testCmonkeyRunResultRef).withExpressionSeriesWsRef(testSeriesRef).withTfListWsRef(testTfListRef);
 		String jobId = InferelatorServerCaller.findInteractionsWithInferelator(workspaceName, params, token);

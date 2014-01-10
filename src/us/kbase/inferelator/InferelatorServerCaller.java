@@ -1,18 +1,24 @@
 package us.kbase.inferelator;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -32,15 +38,13 @@ public class InferelatorServerCaller {
 
 	private static final String JOB_SERVICE = InferelatorServerConfig.JOB_SERVICE_URL;
 	private static final String AWE_SERVICE = InferelatorServerConfig.AWE_SERVICE_URL;
-	private static final String SHOCK_URL = InferelatorServerConfig.SHOCK_URL;
 	private static boolean deployAwe = InferelatorServerConfig.DEPLOY_AWE;
+	private static final String AWF_CONFIG_FILE = InferelatorServerConfig.AWF_CONFIG_FILE;
 	
-	private static Integer connectionReadTimeOut = 30 * 60 * 1000;
-
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ssZ");
 
-	public static String findInteractionsWithInferelator(String wsName, InferelatorRunParameters params, AuthToken authPart) throws TokenFormatException, JsonClientException, IOException{
+	public static String findInteractionsWithInferelator(String wsName, InferelatorRunParameters params, AuthToken authPart) throws Exception{
 		
 		URL jobServiceUrl = new URL(JOB_SERVICE);
 		Date date = new Date();
@@ -59,8 +63,8 @@ public class InferelatorServerCaller {
 		jobClient = null;
 		
 		if (deployAwe) {
-			String jsonArgs = prepareJson(wsName, returnVal, params,
-					authPart.toString());
+			String jsonArgs = formatAWEConfig(returnVal, wsName, params, authPart.toString());
+
 			if (InferelatorServerConfig.LOG_AWE_CALLS) {
 				System.out.println(jsonArgs);
 				PrintWriter out = new PrintWriter(new FileWriter(
@@ -73,7 +77,7 @@ public class InferelatorServerCaller {
 				}
 			}
 			
-			String result = executePost(jsonArgs);
+			String result = submitJob(jsonArgs);
 			reportAweStatus(authPart, returnVal, result);
 
 			if (InferelatorServerConfig.LOG_AWE_CALLS) {
@@ -93,72 +97,46 @@ public class InferelatorServerCaller {
 		return returnVal;
 	}
 
-	protected static String prepareJson(String wsName, String jobId,
-			InferelatorRunParameters params, String token) {
-		String returnVal = "{\"info\": {\"pipeline\": \"inferelator-runner-pipeline\",\"name\": \"inferelator\",\"project\": \"default\""
-				+ ",\"user\": \"default\",\"clientgroups\":\"\",\"sessionId\":\""
-				+ jobId + "\"},\"tasks\": [{\"cmd\": {\"args\": \"";
-		returnVal += " --job " + jobId
-				+ " --method find_interactions_with_inferelator --ws '" + wsName
-				+ "' --series '" + params.getExpressionSeriesWsRef() + "' --tflist '"
-				+ params.getTfListWsRef()  + "' --cmonkey '" + params.getCmonkeyRunResultWsRef() + "'";
+	protected static String submitJob(String aweConfig) throws Exception {
 
-		returnVal += " --token '" + token + "'";
-		returnVal += "\", \"description\": \"running Inferelator service\", \"name\": \"run_inferelator\"}, \"dependsOn\": [], \"outputs\": {\""
-				+ jobId
-				+ ".tgz\": {\"host\": \"" + SHOCK_URL + "\"}},\"taskid\": \"0\",\"skip\": 0,\"totalwork\": 1}]}";
-
-		return returnVal;
+		String postResponse = null;
+		try {
+			CloseableHttpClient httpClient = HttpClients.createDefault();
+			HttpPost httpPost = new HttpPost(
+					InferelatorServerConfig.AWE_SERVICE_URL);
+			MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+			InputStream stream = new ByteArrayInputStream(
+					aweConfig.getBytes("UTF-8"));
+			builder.addBinaryBody("upload", stream,
+					ContentType.APPLICATION_OCTET_STREAM, "bambi.awf");
+			httpPost.setEntity(builder.build());
+			HttpResponse response = httpClient.execute(httpPost);
+			postResponse = EntityUtils.toString(response.getEntity());
+		} catch (Exception e) {
+			throw new Exception("Can not submit AWE post request: "
+					+ e.getMessage());
+		}
+		return postResponse;
 	}
 
-	protected static String executePost(String jsonRequest) throws IOException {
-		URL url;
-		HttpURLConnection connection = null;
-		PrintWriter writer = null;
-		url = new URL(AWE_SERVICE);
-		String boundary = Long.toHexString(System.currentTimeMillis());
-		connection = (HttpURLConnection) url.openConnection();
-		connection.setConnectTimeout(10000);
-		if (connectionReadTimeOut != null) {
-			connection.setReadTimeout(connectionReadTimeOut);
-		}
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type",
-				"multipart/form-data; boundary=" + boundary);
-		connection.setDoOutput(true);
-		// connection.setDoInput(true);
-		OutputStream output = connection.getOutputStream();
-		writer = new PrintWriter(new OutputStreamWriter(output), true); //set true for autoFlush!
-		String CRLF = "\r\n";
-		writer.append("--" + boundary).append(CRLF);
-		writer.append(
-				"Content-Disposition: form-data; name=\"upload\"; filename=\"inferelator.awe\"")
-				.append(CRLF);
-		writer.append("Content-Type: application/octet-stream").append(CRLF);
-		writer.append(CRLF).flush();
-		writer.append(jsonRequest).append(CRLF);
-		writer.flush();
-		writer.append("--" + boundary + "--").append(CRLF);
-		writer.append(CRLF).flush();
+	protected static String formatAWEConfig(String jobId, String wsName,
+			InferelatorRunParameters params, String token
+			) throws Exception {
 
-		// Get Response
-		InputStream is = connection.getInputStream();
-		BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-		String line;
-		StringBuffer response = new StringBuffer();
-		while ((line = rd.readLine()) != null) {
-			response.append(line);
-			response.append('\r');
+		String formattedConfig;
+		try {
+			String config = FileUtils.readFileToString(new File(
+					AWF_CONFIG_FILE));
+			String args = " --job " + jobId	+ " --method find_interactions_with_inferelator --ws '" + wsName
+					+ "' --series '" + params.getExpressionSeriesWsRef() + "' --tflist '"
+					+ params.getTfListWsRef()  + "' --cmonkey '" + params.getCmonkeyRunResultWsRef() + "'"
+					+ " --token '" + token + "'";
+			formattedConfig = String.format(config, jobId, args, jobId);
+		} catch (IOException e) {
+			throw new Exception("Can not load AWE config file: "
+					+ AWF_CONFIG_FILE);
 		}
-		rd.close();
-
-		if (writer != null)
-			writer.close();
-
-		if (connection != null) {
-			connection.disconnect();
-		}
-		return response.toString();
+		return formattedConfig;
 	}
 
 	protected static void updateJobProgress(String jobId, String status,

@@ -1,0 +1,30 @@
+{
+	"info": {
+		"pipeline": "inferelator-runner-pipeline",
+		"name": "inferelator",
+		"project": "default",
+		"user": "default",
+		"clientgroups":"",
+		"sessionId":"%s" 
+	},
+	
+	"tasks": [
+		{
+			"cmd": {
+				"args": "%s",		
+				"description": "running Inferelator service", 
+				"name": "run_inferelator"
+			}, 
+			"dependsOn": [], 
+			"outputs": {
+				"%s.tgz": {
+					"host": "http://140.221.84.236:8000"
+				}
+			},
+			
+			"taskid": "0",
+			"skip": 0,
+			"totalwork": 1
+		}
+	]
+}	
