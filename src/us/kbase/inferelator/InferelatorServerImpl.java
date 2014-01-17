@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,8 +34,8 @@ import us.kbase.cmonkey.CmonkeyRunResult;
 import us.kbase.common.service.JacksonTupleModule;
 import us.kbase.common.service.JsonClientException;
 import us.kbase.common.service.UObject;
-import us.kbase.expressionservices.ExpressionSample;
-import us.kbase.expressionservices.ExpressionSeries;
+import us.kbase.kbaseexpression.ExpressionSample;
+import us.kbase.kbaseexpression.ExpressionSeries;
 import us.kbase.idserverapi.IDServerAPIClient;
 import us.kbase.kbasegenomes.Genome;
 import us.kbase.userandjobstate.InitProgress;
@@ -47,6 +46,7 @@ import us.kbase.workspace.ObjectData;
 
 public class InferelatorServerImpl {
 
+	private static final String INFERELATOR_RUN_RESULT_TYPE = InferelatorServerConfig.INFERELATOR_RUN_RESULT_TYPE;
 	private static final String JOB_SERVICE = InferelatorServerConfig.JOB_SERVICE_URL;
 	private static final String ID_SERVICE_URL = InferelatorServerConfig.ID_SERVICE_URL;
 	private static boolean deployAwe = InferelatorServerConfig.DEPLOY_AWE;
@@ -102,9 +102,10 @@ public class InferelatorServerImpl {
 		//get input data and write input files
 		if (jobId != null)
 			updateJobProgress(jobId, "Preparing input...", authPart);
-		writeExpressionTable(jobPath, params, authPart.toString());
+		CmonkeyRunResult cmonkeyRunResult = WsDeluxeUtil.getObjectFromWsByRef(params.getCmonkeyRunResultWsRef(), authPart.toString()).getData().asClassInstance(CmonkeyRunResult.class);
+		writeExpressionTable(jobPath, params, cmonkeyRunResult.getParameters().getGenomeRef(), authPart.toString());
 		String organism = writeTfList(jobPath, params, authPart.toString());
-		HashMap<String, String> clusterIds = writeClusterStack(jobPath, params, authPart.toString());
+		HashMap<String, String> clusterIds = writeClusterStack(jobPath, cmonkeyRunResult);
 		writer.write("Input files created\n");
 		writer.flush();
 		
@@ -132,7 +133,7 @@ public class InferelatorServerImpl {
 
 		//save run result
 		if (jobId != null) updateJobProgress (jobId, "Output created. Saving to workspace...", authPart);
-		WsDeluxeUtil.saveObjectToWorkspace(UObject.transformObjectToObject(runResult, UObject.class), "Inferelator.InferelatorRunResult", wsName, runResult.getId(), authPart.toString());
+		WsDeluxeUtil.saveObjectToWorkspace(UObject.transformObjectToObject(runResult, UObject.class), INFERELATOR_RUN_RESULT_TYPE, wsName, runResult.getId(), authPart.toString());
 		if (jobId != null) finishJob (jobId, wsName, runResult.getId(), authPart);
 		writer.write("Job finished\n");
 		writer.flush();
@@ -161,7 +162,7 @@ public class InferelatorServerImpl {
 	}
 
 	protected static void writeExpressionTable(String jobPath,
-			InferelatorRunParameters params, String token) throws TokenFormatException, IOException, JsonClientException {
+			InferelatorRunParameters params, String genomeRef, String token) throws TokenFormatException, IOException, JsonClientException {
 		ExpressionSeries series = WsDeluxeUtil.getObjectFromWsByRef(params.getExpressionSeriesWsRef(), token).getData().asClassInstance(ExpressionSeries.class);
 		OutputStreamWriter writer = new OutputStreamWriter(new GZIPOutputStream(
 				new BufferedOutputStream(new FileOutputStream(jobPath+inputExpressionFileName))));
@@ -169,11 +170,12 @@ public class InferelatorServerImpl {
 		writer.write("GENE");
 
 		//get list of samples
-		List<ObjectData> samples = WsDeluxeUtil.getObjectsFromWsByRef(series.getExpressionSampleIds(), token);
+		List<String> sampleIdsList = series.getGenomeExpressionSampleIdsMap().get(genomeRef.split("/")[genomeRef.split("/").length -1]);//all this "split" madness used solely for extraction of genome name from genome reference
+		List<ObjectData> samples = WsDeluxeUtil.getObjectsFromWsByRef(sampleIdsList, token);
 
 		//write sample IDs
 		for (ObjectData data: samples){
-			writer.write("\t"+data.getData().asClassInstance(ExpressionSample.class).getKbId());
+			writer.write("\t"+data.getData().asClassInstance(ExpressionSample.class).getId());
 		}
 		//writer.flush();
 
@@ -207,10 +209,8 @@ public class InferelatorServerImpl {
 		series = null;
 	}
 
-	protected static HashMap<String, String> writeClusterStack(String jobPath, InferelatorRunParameters params,
-			String token) throws IOException, TokenFormatException, JsonClientException {
+	protected static HashMap<String, String> writeClusterStack(String jobPath, CmonkeyRunResult cmonkeyRunResult) throws IOException{
 		HashMap<String, String> returnVal = new HashMap<String, String>();
-		CmonkeyRunResult cmonkeyRunResult = WsDeluxeUtil.getObjectFromWsByRef(params.getCmonkeyRunResultWsRef(), token).getData().asClassInstance(CmonkeyRunResult.class);
 		BufferedWriter writer = new BufferedWriter(new FileWriter(jobPath+inputNetworkFileName));
 			writer.write("[");
 

@@ -48,8 +48,8 @@ public class InferelatorServerImplTest {
 	private static final String USER_NAME = "aktest";
 	private static final String PASSWORD = "1475rokegi";
 	private static final String workspaceName = "AKtest";
-	private String genomeRef = "AKtest/Desulfovibrio_vulgaris_Hildenborough";//"ENIGMA_KBASE/Halobacterium_sp_NRC-1";
-	private String testSeriesRef = "AKtest/Halobacterium_sp_NRC-1_series_250_series";
+	private String genomeRef = "AKtest/Halobacterium_sp_NRC-1";//"AKtest/Desulfovibrio_vulgaris_Hildenborough";//
+	private String testSeriesRef = "AKtest/Halobacterium_sp_expression_series";
 	private String testCmonkeyRunResultRef = "AKtest/kb|cmonkeyrunresult.132";
 	private String testTfListRef = "AKtest/kb|genelist.5";
 	
@@ -119,8 +119,8 @@ public class InferelatorServerImplTest {
 		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
 		//System.out.println(token.toString());
 		String name = "AKtest/kb|cmonkeyrunresult.122";
-		InferelatorRunParameters params = new InferelatorRunParameters().withCmonkeyRunResultWsRef(name);
-		InferelatorServerImpl.writeClusterStack("test/", params, token.toString());
+		CmonkeyRunResult cmonkeyRunResult = WsDeluxeUtil.getObjectFromWsByRef(name, token.toString()).getData().asClassInstance(CmonkeyRunResult.class);
+		InferelatorServerImpl.writeClusterStack("test/", cmonkeyRunResult);
 	}
 
 	@Test
@@ -194,14 +194,14 @@ public class InferelatorServerImplTest {
 	public void testImportGeneList() throws Exception {
 		
 		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
-		String fileName = "/home/kbase/Documents/dvh/dvh-tflist.txt";
+		String fileName = "test/tfsfile.txt";//"/home/kbase/Documents/dvh/dvh-tflist.txt";
 		GeneList geneList = DataImporter.importGeneList(fileName, genomeRef, token.toString());
 		for (String gene: geneList.getGenes()){
 			System.out.println(gene);
 			
 		}
 		WsDeluxeUtil.saveObjectToWorkspace(UObject.transformObjectToObject(
-				geneList, UObject.class), "Inferelator.GeneList", workspaceName, "D_vulgaris_Hildenborough_TFs", token.toString());
+				geneList, UObject.class), "Inferelator.GeneList", workspaceName, "Halobacterium_sp_TFs", token.toString());
 		assertNotNull(geneList);
 	}
 
@@ -247,7 +247,7 @@ public class InferelatorServerImplTest {
 	public final void testWriteInputTable() throws AuthException, IOException, JsonClientException {
 		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
 		InferelatorRunParameters params = new InferelatorRunParameters().withExpressionSeriesWsRef(testSeriesRef);
-		InferelatorServerImpl.writeExpressionTable("test/1/", params, token.toString());
+		InferelatorServerImpl.writeExpressionTable("test/1/", params, genomeRef, token.toString());
 		assertTrue(new File("test/1/ratios.tsv").exists());
 	}
 

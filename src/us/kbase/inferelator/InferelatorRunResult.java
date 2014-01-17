@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * string organism - organism name
  * InferelatorRunParameters params - run parameters
  * list <InferelatorHit> hits - list of hits
+ * @optional organism hits
  * </pre>
  * 
  */
