@@ -7,7 +7,7 @@ public class InferelatorServerConfig {
 	//Service URLs
 	public static final String JOB_SERVICE_URL = "https://kbase.us/services/userandjobstate";//dev:"http://140.221.84.180:7083";
 	public static final String AWE_SERVICE_URL = "http://140.221.85.171:7080/job";
-	public static final String ID_SERVICE_URL = "http://kbase.us/services/idserver";
+	public static final String ID_SERVICE_URL = "https://kbase.us/services/idserver";
 	public static final String WS_SERVICE_URL = "https://kbase.us/services/ws";//dev: "http://140.221.84.209:7058";
 	
 	//Paths

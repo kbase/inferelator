@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -79,7 +80,7 @@ public class InferelatorServerImpl {
 		return _idClient;
 	} 
 	
-	public static void findInteractionsWithInferelator(String jobId, String wsName, InferelatorRunParameters params, AuthToken authPart, String currentDir) throws IOException, JsonClientException, AuthException, InterruptedException{
+	public static void findInteractionsWithInferelator(String jobId, String wsName, InferelatorRunParameters params, AuthToken authPart, String currentDir) throws Exception{
 		//start job
 		if (jobId != null) 
 			updateJobProgress(jobId,
@@ -162,7 +163,7 @@ public class InferelatorServerImpl {
 	}
 
 	protected static void writeExpressionTable(String jobPath,
-			InferelatorRunParameters params, String genomeRef, String token) throws TokenFormatException, IOException, JsonClientException {
+			InferelatorRunParameters params, String genomeRef, String token) throws Exception {
 		ExpressionSeries series = WsDeluxeUtil.getObjectFromWsByRef(params.getExpressionSeriesWsRef(), token).getData().asClassInstance(ExpressionSeries.class);
 		OutputStreamWriter writer = new OutputStreamWriter(new GZIPOutputStream(
 				new BufferedOutputStream(new FileOutputStream(jobPath+inputExpressionFileName))));
@@ -170,7 +171,14 @@ public class InferelatorServerImpl {
 		writer.write("GENE");
 
 		//get list of samples
-		List<String> sampleIdsList = series.getGenomeExpressionSampleIdsMap().get(genomeRef.split("/")[genomeRef.split("/").length -1]);//all this "split" madness used solely for extraction of genome name from genome reference
+		Set<String> genomeIds = series.getGenomeExpressionSampleIdsMap().keySet();
+		List<String> sampleIdsList = null;
+		if (genomeIds.size() > 1) {
+			throw new Exception ("ExpressionSeries contains more than one genome ID");
+		} else {
+			String genomeId = genomeIds.iterator().next();
+			sampleIdsList = series.getGenomeExpressionSampleIdsMap().get(genomeId);
+		}
 		List<ObjectData> samples = WsDeluxeUtil.getObjectsFromWsByRef(sampleIdsList, token);
 
 		//write sample IDs

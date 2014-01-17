@@ -46,9 +46,9 @@ public class InferelatorServerImplTest {
 	private static final String JOB_SERVICE = InferelatorServerConfig.JOB_SERVICE_URL;
 
 	private static final String USER_NAME = "aktest";
-	private static final String PASSWORD = "1475rokegi";
-	private static final String workspaceName = "AKtest";
-	private String genomeRef = "AKtest/Halobacterium_sp_NRC-1";//"AKtest/Desulfovibrio_vulgaris_Hildenborough";//
+	private static final String PASSWORD = "";
+	private static final String workspaceName = "ENIGMA_KBASE";
+	private String genomeRef = "ENIGMA_KBASE/Desulfovibrio_vulgaris_Hildenborough";//"ENIGMA_KBASE/Halobacterium_sp_NRC-1";//
 	private String testSeriesRef = "AKtest/Halobacterium_sp_expression_series";
 	private String testCmonkeyRunResultRef = "AKtest/kb|cmonkeyrunresult.132";
 	private String testTfListRef = "AKtest/kb|genelist.5";
@@ -163,7 +163,7 @@ public class InferelatorServerImplTest {
 		
 		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
 		ListModulesParams params = new ListModulesParams(); 
-		params.setOwner("kazakov");
+		params.setOwner("");
 		List<String> modulenames = WsDeluxeUtil.wsClient(token.toString()).listModules(params);
 		for(String modulename: modulenames){
 			System.out.println(modulename);
@@ -176,7 +176,7 @@ public class InferelatorServerImplTest {
 	@Test
 	public void testWsModuleInfo() throws Exception {
 		
-		AuthToken token = AuthService.login("kazakov", new String("1475.kafa")).getToken();
+		AuthToken token = AuthService.login("", new String("")).getToken();
 		GetModuleInfoParams params = new GetModuleInfoParams(); 
 		params.setMod("Sequences");
 		ModuleInfo moduleInfo = WsDeluxeUtil.wsClient(token.toString()).getModuleInfo(params);
@@ -194,14 +194,14 @@ public class InferelatorServerImplTest {
 	public void testImportGeneList() throws Exception {
 		
 		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
-		String fileName = "test/tfsfile.txt";//"/home/kbase/Documents/dvh/dvh-tflist.txt";
+		String fileName = "/home/kbase/Documents/dvh/dvh-tflist.txt";//"test/tfsfile.txt";//
 		GeneList geneList = DataImporter.importGeneList(fileName, genomeRef, token.toString());
 		for (String gene: geneList.getGenes()){
 			System.out.println(gene);
 			
 		}
 		WsDeluxeUtil.saveObjectToWorkspace(UObject.transformObjectToObject(
-				geneList, UObject.class), "Inferelator.GeneList", workspaceName, "Halobacterium_sp_TFs", token.toString());
+				geneList, UObject.class), "Inferelator.GeneList", workspaceName, "D_vulgaris_Hildenborough_TFs", token.toString());
 		assertNotNull(geneList);
 	}
 
