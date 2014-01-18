@@ -36,7 +36,8 @@ my $tflist = "AKtest/Halobacterium_sp_TFs";
 
 my $test_command = "";
 my @time = (localtime(time + 600))[0..5];
-my $tdiff = (localtime)[2] - (gmtime)[2] - 24;
+my $tdiff = (localtime)[2] - (gmtime)[2];
+if ($tdiff > 24) $tdiff-= 24;
 print gmtime."\n".localtime."\n\n";
 my $timestamp = sprintf ("%d-%02d-%02dT%02d:%02d:%02d%+03d", $time[5] + 1900, $time[4] +1, $time[3], $time[2], $time[1], $time[0], $tdiff);
 $timestamp = $timestamp."00";
