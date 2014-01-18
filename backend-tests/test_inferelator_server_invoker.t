@@ -35,13 +35,17 @@ my $cmonkey = "AKtest/kb|cmonkeyrunresult.157";
 my $tflist = "AKtest/Halobacterium_sp_TFs";
 
 my $test_command = "";
-my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time + 600);
-$year += 1900;
-$mon += 1;
-my $timezone_diff = localtime()[2] - gmtime()[2];
-my $timestamp = $year."-".$mon."-".$mday."T".$hour.":".$min.":".$sec";
-$timestamp += sprintf("%02d",$timezone_diff);
-$timestamp += "00"; 
+my @time = (localtime(time + 600))[0..5];
+my $tdiff = (localtime)[2] - (gmtime)[2] - 24;
+print gmtime."\n".localtime."\n\n";
+my $timestamp = sprintf ("%d-%02d-%02dT%02d:%02d:%02d%+03d", $time[5] + 1900, $time[4] +1, $time[3], $time[2], $time[1], $time[0], $tdiff);
+$timestamp = $timestamp."00";
+
+my $progress = {
+    "ptype"=>"task",
+    "max"=>5
+};
+
 
 #1 help
 $test_command = $command_line." --help";
@@ -49,7 +53,7 @@ print $test_command."\n\n";
 system ($test_command);
 
 #2 build_cmonkey_network_job_from_ws
-my $job = $job_client->create_and_start_job($auth_token, "Test job started", "Inferelator server back-end test", {"task", 5}, $timestamp);
+my $job = $job_client->create_and_start_job($auth_token, "Test job started", "Inferelator server back-end test", $progress, $timestamp);
 $test_command = $command_line." --job $job --method find_interactions_with_inferelator --ws \"$ws\" --series \"$series\" --tflist \"$tflist\" --cmonkey \"$cmonkey\" --token \"$auth_token\"";
 print $test_command."\n\n";
 system ($test_command);
