@@ -6,7 +6,7 @@ KB_TOP ?= /kb/deployment
 TARGET ?= $(KB_TOP)
 CURR_DIR = $(shell pwd)
 TARGET_DIR = $(TARGET)/services/$(SERVICE_NAME)
-TARGET_PORT = 7079
+TARGET_PORT = 7113
 THREADPOOL_SIZE = 20
 SERVICE_NAME = $(shell basename $(CURR_DIR))
 SERVICE_SPEC = ./Inferelator.spec
@@ -28,7 +28,7 @@ deploy: distrib deploy-client deploy-jar
 
 deploy-all: distrib deploy-client
 
-deploy-jar: compile-jar deploy-sh-scripts distrib-jar test-jar
+deploy-jar: compile-jar deploy-sh-scripts distrib-jar
 
 compile-jar: src lib
 	./make_jar.sh $(MAIN_CLASS)
@@ -109,30 +109,22 @@ build-libs:
 compile: src lib
 	./make_war.sh $(SERVLET_CLASS)
 
-test: test-scripts
+test: test-scripts test-jar
 	@echo "running script tests"
 
 test-scripts:
 	# run each test
-	for t in $(SCRIPTS_TESTS) ; do \
-		if [ -f $$t ] ; then \
-			$(DEPLOY_RUNTIME)/bin/perl $$t ; \
-			if [ $$? -ne 0 ] ; then \
-				exit 1 ; \
-			fi \
-		fi \
-	done
+	$(DEPLOY_RUNTIME)/bin/perl test/script_tests-command-line.t ; \
+	if [ $$? -ne 0 ] ; then \
+		exit 1 ; \
+	fi \
 
 test-jar:
 	# run each test
-	for t in $(JAR_TESTS) ; do \
-		if [ -f $$t ] ; then \
-			$(DEPLOY_RUNTIME)/bin/perl $$t ; \
-			if [ $$? -ne 0 ] ; then \
-				exit 1 ; \
-			fi \
-		fi \
-	done
+	$(DEPLOY_RUNTIME)/bin/perl test/test_inferelator_server_invoker.t ; \
+	if [ $$? -ne 0 ] ; then \
+		exit 1 ; \
+	fi \
 
 clean:
 	@echo "nothing to clean"
