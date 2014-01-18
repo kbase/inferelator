@@ -2,7 +2,7 @@ package us.kbase.inferelator;
 
 public class InferelatorServerConfig {
 	//Deployment options
-	protected static boolean DEPLOY_AWE = true;//false;
+	protected static boolean DEPLOY_AWE = true;//false for running Inferelator locally;
 	
 	//Service URLs
 	public static final String JOB_SERVICE_URL = "https://kbase.us/services/userandjobstate";//dev:"http://140.221.84.180:7083";
@@ -21,8 +21,9 @@ public class InferelatorServerConfig {
 	//Writes all JSON calls to AWE client and all AWE responses to /var/tmp/inferelator/inferelator-awe.log
 	//This is a serious security threat because log will contain all auth tokens
 	//SET IT TO FALSE ON PRODUCTION  
-	public static final boolean LOG_AWE_CALLS = true;
+	public static final boolean LOG_AWE_CALLS = false;
 	
+	//object type to save in workspace 
 	protected static final String INFERELATOR_RUN_RESULT_TYPE = "Inferelator.InferelatorRunResult";
 
 }

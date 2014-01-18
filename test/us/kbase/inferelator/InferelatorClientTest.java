@@ -20,23 +20,17 @@ public class InferelatorClientTest {
 
 	private static final String JOB_SERVICE = InferelatorServerConfig.JOB_SERVICE_URL;
 	
-	private static final String USER_NAME = "aktest";
-	private static final String PASSWORD = "1475rokegi";
+	private static final String USER_NAME = "";
+	private static final String PASSWORD = "";
 	private static final String workspaceName = "AKtest";
 	
-	private String serverUrl = "http://localhost:7081";
-//	private String serverUrl = "http://140.221.85.173:7079/";
+//	private String serverUrl = "http://localhost:7081";
+	private String serverUrl = "http://140.221.85.173:7079/";
 	//private String genomeRef = "AKtest/Halobacterium_sp_NRC-1";
 
-/*	private String testSeriesRef = "ENIGMA_KBASE/Halobacterium_sp_NRC-1_series_250_series";
-	private String testCmonkeyRunResultRef = "ENIGMA_KBASE/kb|cmonkeyrunresult.134";
-	private String testTfListRef = "ENIGMA_KBASE/Halobacterium_sp_NRC-1_TFs";
-*/
-	
-	
-	private String testSeriesRef = "AKtest/test_Halobacterium_sp_expression_series";//"AKtest/Halobacterium_sp_NRC-1_series_250_series";
-	private String testCmonkeyRunResultRef = "AKtest/kb|cmonkeyrunresult.154";//"AKtest/kb|cmonkeyrunresult.132";
-	private String testTfListRef = "AKtest/Halobacterium_sp_TFs";//"AKtest/D_vulgaris_Hildenborough_TFs";//"AKtest/kb|genelist.5";
+	private String testSeriesRef = "AKtest/Halobacterium_sp_expression_series";
+	private String testCmonkeyRunResultRef = "AKtest/kb|cmonkeyrunresult.157";
+	private String testTfListRef = "AKtest/Halobacterium_sp_TFs";
 
 	@Test
 	public void testFindInteractionsWithInferelator() throws AuthException, IOException, JsonClientException {
@@ -107,10 +101,9 @@ public class InferelatorClientTest {
 		InferelatorRunResult result = WsDeluxeUtil.getObjectFromWorkspace(workspaceName, resultId, token.toString()).getData().asClassInstance(InferelatorRunResult.class);
 		
 		assertNotNull(result.getHits().get(0));
-		assertEquals("kb|cmonkeycluster.3620", result.getHits().get(0).getBiclusterId());
-		assertEquals(1629, result.getHits().size());
-		assertEquals("VNG1786", result.getHits().get(0).getTfId());
-		assertEquals(Double.valueOf("0.09119"), result.getHits().get(0).getCoeff());
+		assertEquals(1641, result.getHits().size());
+//		assertEquals("VNG1786", result.getHits().get(0).getTfId());
+//		assertEquals(Double.valueOf("0.09119"), result.getHits().get(0).getCoeff());
 
 		
 	}

@@ -17,9 +17,9 @@ my $bin  = "scripts";
 my $ws = "\"AKtest\"";
 my $user = "aktest";
 my $pw = "1475rokegi";
-my $series_ref = "\"AKtest/Halobacterium_sp_NRC1_series\"";
-my $cmonkey_ref = "\"AKtest/kb|cmonkeyrunresult.132\"";
-my $tflist_ref = "\"AKtest/kb|genelist.5\"";
+my $series_ref = "\"AKtest/Halobacterium_sp_expression_series\"";
+my $cmonkey_ref = "\"AKtest/kb|cmonkeyrunresult.157\"";
+my $tflist_ref = "\"AKtest/Halobacterium_sp_TFs\"";
 
 
 #1

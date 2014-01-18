@@ -45,7 +45,7 @@ public class InferelatorServerImplTest {
 
 	private static final String JOB_SERVICE = InferelatorServerConfig.JOB_SERVICE_URL;
 
-	private static final String USER_NAME = "aktest";
+	private static final String USER_NAME = "";
 	private static final String PASSWORD = "";
 	private static final String workspaceName = "ENIGMA_KBASE";
 	private String genomeRef = "ENIGMA_KBASE/Desulfovibrio_vulgaris_Hildenborough";//"ENIGMA_KBASE/Halobacterium_sp_NRC-1";//
@@ -244,7 +244,7 @@ public class InferelatorServerImplTest {
 
 
 	@Test
-	public final void testWriteInputTable() throws AuthException, IOException, JsonClientException {
+	public final void testWriteInputTable() throws Exception {
 		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
 		InferelatorRunParameters params = new InferelatorRunParameters().withExpressionSeriesWsRef(testSeriesRef);
 		InferelatorServerImpl.writeExpressionTable("test/1/", params, genomeRef, token.toString());
@@ -414,7 +414,7 @@ public class InferelatorServerImplTest {
 
 
 	@Test
-	public void testInferelatorServerImpl() throws AuthException, IOException, JsonClientException, InterruptedException {
+	public void testInferelatorServerImpl() throws Exception {
 		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
 		URL jobServiceUrl = new URL(JOB_SERVICE);
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(
