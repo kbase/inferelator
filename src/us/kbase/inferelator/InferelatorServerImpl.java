@@ -314,11 +314,11 @@ public class InferelatorServerImpl {
 		date.setTime(date.getTime()+1000000L);
 		URL jobServiceUrl = new URL(JOB_SERVICE);
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(jobServiceUrl, token);
-		jobClient.updateJobProgress(jobId, AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken().toString(),status, 1L, dateFormat.format(date));
+		jobClient.updateJobProgress(jobId, AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken().toString(), status, 1L, dateFormat.format(date));
 		jobClient = null;
 	}
 	
-	protected static void finishJob (String jobId, String wsId, String objectId, AuthToken token) throws IOException, JsonClientException{
+	protected static void finishJob (String jobId, String wsId, String objectId, AuthToken token) throws IOException, JsonClientException, AuthException{
 		String status = "Finished";
 		String error = null;
 		Results res = new Results();
@@ -327,7 +327,7 @@ public class InferelatorServerImpl {
 		res.setWorkspaceids(workspaceIds);
 		URL jobServiceUrl = new URL(JOB_SERVICE);
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(jobServiceUrl, token);
-		jobClient.completeJob(jobId, token.toString(), status, error, res);
+		jobClient.completeJob(jobId, AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken().toString(), status, error, res);
 		jobClient = null;
 	}
 
