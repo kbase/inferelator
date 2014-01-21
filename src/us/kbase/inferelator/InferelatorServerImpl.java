@@ -27,6 +27,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import us.kbase.auth.AuthException;
+import us.kbase.auth.AuthService;
 import us.kbase.auth.AuthToken;
 import us.kbase.auth.TokenFormatException;
 import us.kbase.cmonkey.CmonkeyCluster;
@@ -292,7 +294,7 @@ public class InferelatorServerImpl {
 		return result;
 	}
 
-	protected static void startJob (String jobId, String desc, Long tasks, AuthToken token) throws IOException, JsonClientException {
+	protected static void startJob (String jobId, String desc, Long tasks, AuthToken token) throws IOException, JsonClientException, AuthException {
 		
 		String status = "cmonkey service job started. Preparing input...";
 		InitProgress initProgress = new InitProgress();
@@ -303,16 +305,16 @@ public class InferelatorServerImpl {
 		
 		URL jobServiceUrl = new URL(JOB_SERVICE);
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(jobServiceUrl, token);
-		jobClient.startJob(jobId, token.toString(), status, desc, initProgress, dateFormat.format(date));
+		jobClient.startJob(jobId, AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken().toString(), status, desc, initProgress, dateFormat.format(date));
 		jobClient = null;
 	}
 
-	protected static void updateJobProgress (String jobId, String status, AuthToken token) throws IOException, JsonClientException{
+	protected static void updateJobProgress (String jobId, String status, AuthToken token) throws IOException, JsonClientException, AuthException{
 		Date date = new Date();
 		date.setTime(date.getTime()+1000000L);
 		URL jobServiceUrl = new URL(JOB_SERVICE);
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(jobServiceUrl, token);
-		jobClient.updateJobProgress(jobId, token.toString(), status, 1L, dateFormat.format(date));
+		jobClient.updateJobProgress(jobId, AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken().toString(),status, 1L, dateFormat.format(date));
 		jobClient = null;
 	}
 	

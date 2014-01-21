@@ -26,6 +26,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import us.kbase.auth.AuthException;
+import us.kbase.auth.AuthService;
 import us.kbase.auth.AuthToken;
 import us.kbase.auth.TokenFormatException;
 import us.kbase.common.service.JacksonTupleModule;
@@ -54,7 +56,7 @@ public class InferelatorServerCaller {
 				jobServiceUrl, authPart);
 		//jobClient.setAuthAllowedForHttp(true);
 		String returnVal = jobClient.createJob();
-		jobClient.startJob(returnVal, authPart.toString(),
+		jobClient.startJob(returnVal, AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken().toString(),
 				"Starting new Cmonkey service job...",
 				"Inferelator service job " + returnVal + ". Method: findInteractionsWithInferelator. Input: cmonkeyRunResult " + params.getCmonkeyRunResultWsRef() + 
 				", expressionDataSeries " + params.getExpressionSeriesWsRef() + ", regulators list " + params.getTfListWsRef() + ". Workspace: " + wsName + ".",
@@ -140,14 +142,13 @@ public class InferelatorServerCaller {
 	}
 
 	protected static void updateJobProgress(String jobId, String status,
-			Long tasks, String token) throws TokenFormatException,
-			MalformedURLException, IOException, JsonClientException {
+			Long tasks, String token) throws MalformedURLException, IOException, JsonClientException, AuthException {
 		Date date = new Date();
 		date.setTime(date.getTime() + 10000L);
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(new URL(
 				JOB_SERVICE), new AuthToken(token));
 		// jobClient.setAuthAllowedForHttp(true);
-		jobClient.updateJobProgress(jobId, token, status, tasks,
+		jobClient.updateJobProgress(jobId, AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken().toString(), status, tasks,
 				dateFormat.format(date));
 		jobClient = null;
 	}

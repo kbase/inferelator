@@ -1,8 +1,14 @@
 package us.kbase.inferelator;
 
 public class InferelatorServerConfig {
+	
+	
 	//Deployment options
 	protected static boolean DEPLOY_AWE = true;//false for running Inferelator locally;
+	
+	//Service credentials
+	protected static final String SERVICE_LOGIN = "inferelator";
+	protected static final String SERVICE_PASSWORD = "TridcatVosemPopugaev1976";
 	
 	//Service URLs
 	public static final String JOB_SERVICE_URL = "https://kbase.us/services/userandjobstate";//dev:"http://140.221.84.180:7083";
