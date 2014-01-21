@@ -29,7 +29,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import us.kbase.auth.AuthException;
 import us.kbase.auth.AuthService;
 import us.kbase.auth.AuthToken;
-import us.kbase.auth.TokenFormatException;
 import us.kbase.common.service.JacksonTupleModule;
 import us.kbase.common.service.JsonClientException;
 import us.kbase.common.service.ServerException;
@@ -155,8 +154,8 @@ public class InferelatorServerCaller {
 
 	protected static void reportAweStatus(AuthToken authPart, String returnVal,
 			String result) throws IOException, JsonProcessingException,
-			TokenFormatException, MalformedURLException, JsonClientException,
-			JsonParseException, JsonMappingException, ServerException {
+			MalformedURLException, JsonClientException,
+			JsonParseException, JsonMappingException, ServerException, AuthException {
 		JsonNode rootNode = new ObjectMapper().registerModule(new JacksonTupleModule()).readTree(result);
 		String aweId = "";
 		if (rootNode.has("data")){

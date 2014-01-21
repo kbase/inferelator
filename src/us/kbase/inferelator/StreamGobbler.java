@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 
+import us.kbase.auth.AuthException;
 import us.kbase.auth.AuthToken;
 import us.kbase.common.service.JsonClientException;
 
@@ -74,6 +75,9 @@ class StreamGobbler extends Thread
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (JsonClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (AuthException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
