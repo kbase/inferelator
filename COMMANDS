@@ -1,0 +1,2 @@
+#group-name	inferelator	Inferelator
+#command-set	scripts/(.*).pl	inferelator
