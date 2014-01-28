@@ -36,6 +36,7 @@ import us.kbase.cmonkey.CmonkeyRunResult;
 import us.kbase.common.service.JacksonTupleModule;
 import us.kbase.common.service.JsonClientException;
 import us.kbase.common.service.UObject;
+import us.kbase.common.service.UnauthorizedException;
 import us.kbase.kbaseexpression.ExpressionSample;
 import us.kbase.kbaseexpression.ExpressionSeries;
 import us.kbase.idserverapi.IDServerAPIClient;
@@ -81,7 +82,7 @@ public class InferelatorServerImpl {
 		return _idClient;
 	} 
 	
-	public static void findInteractionsWithInferelator(String jobId, String wsName, InferelatorRunParameters params, AuthToken authPart, String currentDir) throws Exception{
+	public static void findInteractionsWithInferelator(String jobId, String wsName, InferelatorRunParameters params, AuthToken authPart, String currentDir) throws Exception  {
 		//start job
 		if (jobId != null) 
 			updateJobProgress(jobId,
@@ -104,9 +105,49 @@ public class InferelatorServerImpl {
 		//get input data and write input files
 		if (jobId != null)
 			updateJobProgress(jobId, "Preparing input...", authPart);
-		CmonkeyRunResult cmonkeyRunResult = WsDeluxeUtil.getObjectFromWsByRef(params.getCmonkeyRunResultWsRef(), authPart.toString()).getData().asClassInstance(CmonkeyRunResult.class);
-		writeExpressionTable(jobPath, params, cmonkeyRunResult.getParameters().getGenomeRef(), authPart.toString());
-		String organism = writeTfList(jobPath, params, authPart.toString());
+		CmonkeyRunResult cmonkeyRunResult;
+		try {
+			cmonkeyRunResult = WsDeluxeUtil.getObjectFromWsByRef(params.getCmonkeyRunResultWsRef(), authPart.toString()).getData().asClassInstance(CmonkeyRunResult.class);
+		} catch (TokenFormatException e) {
+			finishJobWithError(jobId, e.getMessage(), "Cmonkey run result download error", authPart);
+			e.printStackTrace();
+			throw new Exception ("Cmonkey run result download error");
+		} catch (UnauthorizedException e) {
+			finishJobWithError(jobId, e.getMessage(), "Cmonkey run result download error", authPart);
+			e.printStackTrace();
+			throw new Exception ("Cmonkey run result download error");
+		} catch (IOException e) {
+			finishJobWithError(jobId, e.getMessage(), "Cmonkey run result download error", authPart);
+			e.printStackTrace();
+			throw new Exception ("Cmonkey run result download error");
+		} catch (JsonClientException e) {
+			finishJobWithError(jobId, e.getMessage(), "Cmonkey run result download error", authPart);
+			e.printStackTrace();
+			throw new Exception ("Cmonkey run result download error");
+		}
+		try {
+			writeExpressionTable(jobPath, params, cmonkeyRunResult.getParameters().getGenomeRef(), authPart.toString());
+		} catch (Exception e) {
+			finishJobWithError(jobId, e.getMessage(), "Expression data file creation error", authPart);
+			e.printStackTrace();
+			throw new Exception ("Expression data file creation error");
+		}
+		String organism;
+		try {
+			organism = writeTfList(jobPath, params, authPart.toString());
+		} catch (TokenFormatException e) {
+			finishJobWithError(jobId, e.getMessage(), "TF list file creation error", authPart);
+			e.printStackTrace();
+			throw new Exception ("TF list file creation error");
+		} catch (IOException e) {
+			finishJobWithError(jobId, e.getMessage(), "TF list file creation error", authPart);
+			e.printStackTrace();
+			throw new Exception ("TF list file creation error");
+		} catch (JsonClientException e) {
+			finishJobWithError(jobId, e.getMessage(), "TF list file creation error", authPart);
+			e.printStackTrace();
+			throw new Exception ("TF list file creation error");
+		}
 		HashMap<String, String> clusterIds = writeClusterStack(jobPath, cmonkeyRunResult);
 		writer.write("Input files created\n");
 		writer.flush();
@@ -119,14 +160,40 @@ public class InferelatorServerImpl {
 				jobPath + inputExpressionFileName + " --outfile "+ jobPath + outputFileName;
 		writer.write("Run Inferelator : " + inferelatorCommandLine + "\n");
 		writer.flush();
-		Integer exitVal = executeCommand (inferelatorCommandLine, jobPath, jobId, authPart);
+		Integer exitVal;
+		try {
+			exitVal = executeCommand (inferelatorCommandLine, jobPath, jobId, authPart);
+		} catch (InterruptedException e) {
+			finishJobWithError(jobId, e.getMessage(), "Inferelator execution error", authPart);
+			e.printStackTrace();
+			throw new Exception ("Inferelator execution error");
+		} catch (IOException e) {
+			finishJobWithError(jobId, e.getMessage(), "Inferelator execution error", authPart);
+			e.printStackTrace();
+			throw new Exception ("Inferelator execution error");
+		}
 		//Integer exitVal = mockExecuteCommand (inferelatorCommandLine, jobPath, jobId, authPart);
 		writer.write("Exit value : " + exitVal.toString() + "\n");
 		writer.flush();
 		
 		//parse output file  
 		if (jobId != null) updateJobProgress (jobId, "Inferelator finished. Processing output...", authPart);
-		InferelatorRunResult runResult = parseInferelatorOutput (jobPath+outputFileName, clusterIds);
+		InferelatorRunResult runResult;
+		try {
+			runResult = parseInferelatorOutput (jobPath+outputFileName, clusterIds);
+		} catch (JsonProcessingException e) {
+			finishJobWithError(jobId, e.getMessage(), "Inferelator output parsing error", authPart);
+			e.printStackTrace();
+			throw new Exception ("Inferelator output parsing error");
+		} catch (IOException e) {
+			finishJobWithError(jobId, e.getMessage(), "Inferelator output parsing error", authPart);
+			e.printStackTrace();
+			throw new Exception ("Inferelator output parsing error");
+		} catch (JsonClientException e) {
+			finishJobWithError(jobId, e.getMessage(), "Inferelator output parsing error", authPart);
+			e.printStackTrace();
+			throw new Exception ("Inferelator output parsing error");
+		}
 		runResult.setParams(params);
 		runResult.setOrganism(organism);
 		writer.write("Result organism : " + runResult.getOrganism() + "\n");
@@ -135,7 +202,25 @@ public class InferelatorServerImpl {
 
 		//save run result
 		if (jobId != null) updateJobProgress (jobId, "Output created. Saving to workspace...", authPart);
-		WsDeluxeUtil.saveObjectToWorkspace(UObject.transformObjectToObject(runResult, UObject.class), INFERELATOR_RUN_RESULT_TYPE, wsName, runResult.getId(), authPart.toString());
+		try {
+			WsDeluxeUtil.saveObjectToWorkspace(UObject.transformObjectToObject(runResult, UObject.class), INFERELATOR_RUN_RESULT_TYPE, wsName, runResult.getId(), authPart.toString());
+		} catch (TokenFormatException e) {
+			finishJobWithError(jobId, e.getMessage(), "Inferelator result upload error", authPart);
+			e.printStackTrace();
+			throw new Exception ("Inferelator result upload error");
+		} catch (UnauthorizedException e) {
+			finishJobWithError(jobId, e.getMessage(), "Inferelator result upload error", authPart);
+			e.printStackTrace();
+			throw new Exception ("Inferelator result upload error");
+		} catch (IOException e) {
+			finishJobWithError(jobId, e.getMessage(), "Inferelator result upload error", authPart);
+			e.printStackTrace();
+			throw new Exception ("Inferelator result upload error");
+		} catch (JsonClientException e) {
+			finishJobWithError(jobId, e.getMessage(), "Inferelator result upload error", authPart);
+			e.printStackTrace();
+			throw new Exception ("Inferelator result upload error");
+		}
 		if (jobId != null) finishJob (jobId, wsName, runResult.getId(), authPart);
 		writer.write("Job finished\n");
 		writer.flush();
@@ -329,6 +414,14 @@ public class InferelatorServerImpl {
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(jobServiceUrl, token);
 		jobClient.completeJob(jobId, AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken().toString(), status, error, res);
 		jobClient = null;
+	}
+
+	protected static void finishJobWithError(String jobId, String error, String status, AuthToken token) throws UnauthorizedException,
+	IOException, JsonClientException, AuthException {
+		Results res = new Results();
+		URL jobServiceUrl = new URL(JOB_SERVICE);
+		UserAndJobStateClient jobClient = new UserAndJobStateClient(jobServiceUrl, token);
+		jobClient.completeJob(jobId, AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken().toString(), status, error, res);
 	}
 
 	protected static String getKbaseId(String entityType) throws IOException, JsonClientException {

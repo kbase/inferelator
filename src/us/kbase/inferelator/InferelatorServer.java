@@ -36,7 +36,7 @@ public class InferelatorServer extends JsonServerServlet {
     }
 
     /**
-     * <p>Original spec-file function name: find_interactions_with_inferelator</p>
+     * <p>Original spec-file function name: run_inferelator</p>
      * <pre>
      * Starts cMonkey server run for a series of expression data stored in workspace and returns ID of the run result object
      * string ws_id - workspace id where run result would be written
@@ -47,12 +47,12 @@ public class InferelatorServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.inferelator.InferelatorRunParameters InferelatorRunParameters}
      * @return   parameter "job_id" of String
      */
-    @JsonServerMethod(rpc = "Inferelator.find_interactions_with_inferelator")
-    public String findInteractionsWithInferelator(String wsId, InferelatorRunParameters params, AuthToken authPart) throws Exception {
+    @JsonServerMethod(rpc = "Inferelator.run_inferelator")
+    public String runInferelator(String wsId, InferelatorRunParameters params, AuthToken authPart) throws Exception {
         String returnVal = null;
-        //BEGIN find_interactions_with_inferelator
+        //BEGIN run_inferelator
         returnVal = InferelatorServerCaller.findInteractionsWithInferelator(wsId, params, authPart);
-        //END find_interactions_with_inferelator
+        //END run_inferelator
         return returnVal;
     }
 

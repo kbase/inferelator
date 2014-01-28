@@ -75,7 +75,7 @@ public class InferelatorClient {
     }
 
     /**
-     * <p>Original spec-file function name: find_interactions_with_inferelator</p>
+     * <p>Original spec-file function name: run_inferelator</p>
      * <pre>
      * Starts cMonkey server run for a series of expression data stored in workspace and returns ID of the run result object
      * string ws_id - workspace id where run result would be written
@@ -88,12 +88,12 @@ public class InferelatorClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public String findInteractionsWithInferelator(String wsId, InferelatorRunParameters params) throws IOException, JsonClientException {
+    public String runInferelator(String wsId, InferelatorRunParameters params) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(wsId);
         args.add(params);
         TypeReference<List<String>> retType = new TypeReference<List<String>>() {};
-        List<String> res = caller.jsonrpcCall("Inferelator.find_interactions_with_inferelator", args, retType, true, true);
+        List<String> res = caller.jsonrpcCall("Inferelator.run_inferelator", args, retType, true, true);
         return res.get(0);
     }
 }

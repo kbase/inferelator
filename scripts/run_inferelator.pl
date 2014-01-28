@@ -4,11 +4,11 @@ use Carp;
 
 =head1 NAME
 
-    find_interactions_with_inferelator - Network Inference for cMonkey output
+    run_inferelator - Network Inference for cMonkey output
 
 =head1 SYNOPSIS
 
-    find_interactions_with_inferelator [--url=http://140.221.85.173:7079/ --ws=<workspace name for run result> --series=<expression data series reference> --cmonkey=<cmonkey run result reference> --tflist=<regulators list reference> --user=<username> --pw=<password>]
+    run_inferelator [--url=http://140.221.85.173:7079/ --ws=<workspace name for run result> --series=<expression data series reference> --cmonkey=<cmonkey run result reference> --tflist=<regulators list reference> --user=<username> --pw=<password>]
 
 =head1 DESCRIPTION
 
@@ -53,9 +53,9 @@ use Carp;
 
 =head1 EXAMPLE
 
-    find_interactions_with_inferelator --url=http://140.221.85.173:7079/ --ws="AKtest" --series="AKtest/Halobacterium_sp_NRC1_series" --cmonkey="AKtest/kb|cmonkeyrunresult.132" --tflist="AKtest/kb|genelist.5" --user=<username> --pw=<password>
-    find_interactions_with_inferelator --help
-    find_interactions_with_inferelator --version
+    run_inferelator --url=http://140.221.85.173:7079/ --ws="AKtest" --series="AKtest/Halobacterium_sp_NRC1_series" --cmonkey="AKtest/kb|cmonkeyrunresult.132" --tflist="AKtest/kb|genelist.5" --user=<username> --pw=<password>
+    run_inferelator --help
+    run_inferelator --version
 
 =head1 VERSION
 
@@ -68,7 +68,7 @@ use Bio::KBase::inferelator::Client;
 use Bio::KBase::AuthToken;
 use Bio::KBase::AuthUser;
 
-my $usage = "Usage: find_interactions_with_inferelator [--url=http://140.221.85.173:7079/ --ws=<workspace name for run result> --series=<expression data series reference> --cmonkey=<cmonkey run result reference> --tflist=<regulators list reference> --user=<username> --pw=<password>]\n";
+my $usage = "Usage: run_inferelator [--url=http://140.221.85.173:7079/ --ws=<workspace name for run result> --series=<expression data series reference> --cmonkey=<cmonkey run result reference> --tflist=<regulators list reference> --user=<username> --pw=<password>]\n";
 
 my $url        = "http://140.221.85.173:7079/";
 my $ws         = "";
@@ -93,14 +93,14 @@ GetOptions("help"       => \$help,
 
 if($help){
 print "NAME\n";
-print "find_interactions_with_inferelator - Network Inference for cMonkey output.\n";
+print "run_inferelator - Network Inference for cMonkey output.\n";
 print "\n";
 print "\n";
 print "VERSION\n";
 print "1.0\n";
 print "\n";
 print "SYNOPSIS\n";
-print "find_interactions_with_inferelator [--url=http://140.221.85.173:7079/ --ws=<workspace name for run result> --series=<expression data series reference> --cmonkey=<cmonkey run result reference> --tflist=<regulators list reference> --user=<username> --pw=<password>]\n";
+print "run_inferelator [--url=http://140.221.85.173:7079/ --ws=<workspace name for run result> --series=<expression data series reference> --cmonkey=<cmonkey run result reference> --tflist=<regulators list reference> --user=<username> --pw=<password>]\n";
 print "\n";
 print "DESCRIPTION\n";
 print "INPUT:            This command requires the URL of the service, workspace name, and workspace references for three input data objects.\n";
@@ -128,7 +128,7 @@ print "--version         Print version information. \n";
 print "\n";
 print " \n";
 print "EXAMPLES \n";
-print "find_interactions_with_inferelator --url=http://140.221.85.173:7079/ --ws=\"AKtest\" --series=\"AKtest/Halobacterium_sp_NRC1_series\" --cmonkey=\"AKtest/kb|cmonkeyrunresult.132\" --tflist=\"AKtest/kb|genelist.5\" --user=<username> --pw=<password>\n";
+print "run_inferelator --url=http://140.221.85.173:7079/ --ws=\"AKtest\" --series=\"AKtest/Halobacterium_sp_NRC1_series\" --cmonkey=\"AKtest/kb|cmonkeyrunresult.132\" --tflist=\"AKtest/kb|genelist.5\" --user=<username> --pw=<password>\n";
 print "\n";
 print "This command will return a Job object ID.\n";
 print "\n";
@@ -139,7 +139,7 @@ exit(0);
 
 if($version)
 {
-    print "find_interactions_with_inferelator\n";
+    print "run_inferelator\n";
     print "Copyright (C) 2014 DOE Systems Biology Knowledgebase\n";
     print "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.\n";
     print "This is free software: you are free to change and redistribute it.\n";
@@ -172,7 +172,7 @@ my $inferelator_run_parameters = {
 };
 
 my $obj = {
-	method => "Inferelator.find_interactions_with_inferelator",
+	method => "Inferelator.run_inferelator",
 	params => [$ws, $inferelator_run_parameters],
 };
 

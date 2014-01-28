@@ -1,6 +1,6 @@
 /* 
 	Module KBaseInferelator version 1.0
-	This module provides a set of methods for work with cMonkey biclustering tool.
+	This module provides a function for deriving genome-wide transcriptional regulatory interactions in bi-cluster network created by cMonkey tool.
 	
 	Data types summary
 	Input data types:
@@ -12,7 +12,7 @@
 	InferelatorRunResult - contains a list of Inferelator hits
 
 	Methods summary
-	find_interactions_with_inferelator - Starts Inferelator server run with given parameters and  workspace ID where final results will be saved and returns job ID of the run
+	run_inferelator - Starts Inferelator server run with given parameters and workspace ID where final results will be saved and returns job ID of the run
 */
 
 module Inferelator
@@ -96,5 +96,5 @@ module Inferelator
 		InferelatorRunParameters params - run parameters 
 		string job_id - identifier of job object
 	*/
-	funcdef find_interactions_with_inferelator(string ws_id, InferelatorRunParameters params) returns(string job_id) authentication required;
+	funcdef run_inferelator(string ws_id, InferelatorRunParameters params) returns(string job_id) authentication required;
 };
