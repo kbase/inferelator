@@ -487,14 +487,15 @@ public class InferelatorServerImplTest {
 
 	@Test
 	public void testDeleteJob() throws AuthException, IOException, UnauthorizedException, JsonClientException {
-		String jobId = "52cb2bfce4b0ef8357331cde";
+		String jobId = "52e71254e4b0ef83573320ed";
 
 //		AuthToken token = AuthService.login(JOB_ACCOUNT, new String(JOB_PASSWORD)).getToken();
 		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
+		AuthToken serviceToken = AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken();
 
 		URL jobServiceUrl = new URL(JOB_SERVICE);
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(jobServiceUrl, token);
-		jobClient.forceDeleteJob(token.toString(), jobId);
+		jobClient.forceDeleteJob(serviceToken.toString(), jobId);
 	}
 
 }

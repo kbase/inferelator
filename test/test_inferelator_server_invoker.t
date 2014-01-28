@@ -54,9 +54,9 @@ print $test_command."\n\n";
 system ($test_command);
 
 #2 build_cmonkey_network_job_from_ws
-my $job = $job_client->create_and_start_job($auth_token, "Test job started", "Inferelator server back-end test", $progress, $timestamp);
-$test_command = $command_line." --job $job --method find_interactions_with_inferelator --ws \"$ws\" --series \"$series\" --tflist \"$tflist\" --cmonkey \"$cmonkey\" --token \"$auth_token\"";
-print $test_command."\n\n";
-system ($test_command);
+#my $job = $job_client->create_and_start_job($auth_token, "Test job started", "Inferelator server back-end test", $progress, $timestamp);
+#$test_command = $command_line." --job $job --method find_interactions_with_inferelator --ws \"$ws\" --series \"$series\" --tflist \"$tflist\" --cmonkey \"$cmonkey\" --token \"$auth_token\"";
+#print $test_command."\n\n";
+#system ($test_command);
 
 exit(0);

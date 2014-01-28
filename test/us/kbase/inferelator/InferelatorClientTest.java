@@ -39,7 +39,7 @@ public class InferelatorClientTest {
 		URL url = new URL(serverUrl);
 		InferelatorClient client = new InferelatorClient(url, token);
 		client.setAuthAllowedForHttp(true);
-		String jobId = client.findInteractionsWithInferelator(workspaceName, params);
+		String jobId = client.runInferelator(workspaceName, params);
 		System.out.println(jobId);
 		assertNotNull(jobId);
 		
