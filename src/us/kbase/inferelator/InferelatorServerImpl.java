@@ -460,48 +460,6 @@ public class InferelatorServerImpl {
 	}
 
 	
-/*	protected static void executeCommand(String commandLine,
-			String outputFileName) {
-		BufferedWriter writer = null;
-		try {
-			Process p = Runtime.getRuntime().exec(commandLine);
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					p.getInputStream()));
-			writer = new BufferedWriter(new FileWriter(outputFileName));
-			String line;
-			while ((line = br.readLine()) != null) {
-				writer.write(line + "\n");
-			}
-			br.close();
-		} catch (IOException e) {
-			System.out.println(e.getLocalizedMessage());
-		} finally {
-			try {
-				if (writer != null)
-					writer.close();
-			} catch (IOException e) {
-				System.out.println(e.getLocalizedMessage());
-			}
-		}
-	}
-*/
-
-/*	
-	//CREATES FAKE OUTPUT FILE
-	protected static Integer mockExecuteCommand(String commandLine, String jobPath, String jobId, AuthToken authPart) throws InterruptedException, IOException {
-		Integer exitVal = 0;
-		BufferedReader br = new BufferedReader(new FileReader("/kb/dev_container/modules/inferelator/test/inferelator_output.txt"));
-		BufferedWriter bw = new BufferedWriter(new FileWriter(jobPath+outputFileName));
-		String line = null;
-		while ((line = br.readLine()) != null) {
-			bw.write(line);
-		}
-		br.close();
-		bw.close();
-		return exitVal;
-	}
-*/
-	
 	public static void deleteDirectoryRecursively(File startFile) {
 		if (startFile.isDirectory()) {
 			for (File f : startFile.listFiles()) {

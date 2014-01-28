@@ -56,7 +56,7 @@ public class InferelatorServerCaller {
 		//jobClient.setAuthAllowedForHttp(true);
 		String returnVal = jobClient.createJob();
 		jobClient.startJob(returnVal, AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken().toString(),
-				"Starting new Cmonkey service job...",
+				"Starting new Inferelator service job...",
 				"Inferelator service job " + returnVal + ". Method: findInteractionsWithInferelator. Input: cmonkeyRunResult " + params.getCmonkeyRunResultWsRef() + 
 				", expressionDataSeries " + params.getExpressionSeriesWsRef() + ", regulators list " + params.getTfListWsRef() + ". Workspace: " + wsName + ".",
 				new InitProgress().withPtype("task").withMax(5L),
