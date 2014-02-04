@@ -13,7 +13,7 @@
 			"cmd": {
 				"args": "%s",		
 				"description": "running Inferelator service", 
-				"name": "run_inferelator"
+				"name": "run_inferelator_awe"
 			}, 
 			"dependsOn": [], 
 			"outputs": {

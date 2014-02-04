@@ -109,7 +109,7 @@ public class InferelatorServerCaller {
 			InputStream stream = new ByteArrayInputStream(
 					aweConfig.getBytes("UTF-8"));
 			builder.addBinaryBody("upload", stream,
-					ContentType.APPLICATION_OCTET_STREAM, "bambi.awf");
+					ContentType.APPLICATION_OCTET_STREAM, "inferelator.awf");
 			httpPost.setEntity(builder.build());
 			HttpResponse response = httpClient.execute(httpPost);
 			postResponse = EntityUtils.toString(response.getEntity());
