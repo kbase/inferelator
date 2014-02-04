@@ -52,14 +52,14 @@ import us.kbase.workspace.ObjectData;
 
 public class InferelatorServerImpl {
 
-	private static final String INFERELATOR_RUN_RESULT_TYPE = InferelatorServerConfig.INFERELATOR_RUN_RESULT_TYPE;
-	private static final String JOB_SERVICE = InferelatorServerConfig.JOB_SERVICE_URL;
-	private static final String ID_SERVICE_URL = InferelatorServerConfig.ID_SERVICE_URL;
+	private static String INFERELATOR_RUN_RESULT_TYPE = InferelatorServerConfig.INFERELATOR_RUN_RESULT_TYPE;
+	private static String JOB_SERVICE = InferelatorServerConfig.JOB_SERVICE_URL;
+	private static String ID_SERVICE_URL = InferelatorServerConfig.ID_SERVICE_URL;
 	private static boolean deployAwe = InferelatorServerConfig.DEPLOY_AWE;
 
-	private static final String JOB_PATH = InferelatorServerConfig.JOB_DIRECTORY;
-	private static final String INFERELATOR_DIR = InferelatorServerConfig.INFERELATOR_DIRECTORY;
-	private static final String INFERELATOR_RUN_PATH = InferelatorServerConfig.INFERELATOR_RUN_PATH;
+	private static String JOB_PATH = InferelatorServerConfig.JOB_DIRECTORY;
+	private static String INFERELATOR_DIR = InferelatorServerConfig.INFERELATOR_DIRECTORY;
+	private static String INFERELATOR_RUN_PATH = InferelatorServerConfig.INFERELATOR_RUN_PATH;
 	public static final String inputNetworkFileName = "dataset.json";
 	public static final String inputExpressionFileName = "ratios.tsv.gz";
 	public static final String inputTflistFileName = "tflist.txt";
