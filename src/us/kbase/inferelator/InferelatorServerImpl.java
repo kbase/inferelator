@@ -5,7 +5,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -87,7 +86,7 @@ public class InferelatorServerImpl {
 	} 
 
 	public static void startup() {
-		File propertiesFile = new File (System.getenv("KB_TOP") + "services/inferelator/inferelator.properties");
+		File propertiesFile = new File (System.getenv("KB_TOP") + "/services/inferelator/inferelator.properties");
 		Properties prop = new Properties();
 		InputStream input = null;
 		 
