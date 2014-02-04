@@ -4,10 +4,13 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
@@ -20,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
@@ -81,6 +85,37 @@ public class InferelatorServerImpl {
 		}
 		return _idClient;
 	} 
+
+	public static void startup() {
+		File propertiesFile = new File (System.getenv("KB_TOP") + "services/inferelator/inferelator.properties");
+		Properties prop = new Properties();
+		InputStream input = null;
+		 
+		try {
+	 
+			input = new FileInputStream(propertiesFile);
+			// load a properties file
+			prop.load(input);
+			// set service configs
+			InferelatorServerConfig.JOB_SERVICE_URL = prop.getProperty("inferelator");
+			InferelatorServerConfig.JOB_SERVICE_URL = prop.getProperty("ujs_url");
+			InferelatorServerConfig.AWE_SERVICE_URL = prop.getProperty("awe_url");
+			InferelatorServerConfig.ID_SERVICE_URL = prop.getProperty("id_url");
+			InferelatorServerConfig.WS_SERVICE_URL = prop.getProperty("ws_url");
+			InferelatorServerConfig.AWF_CONFIG_FILE = prop.getProperty("awf_config");
+	 
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 	
 	public static void findInteractionsWithInferelator(String jobId, String wsName, InferelatorRunParameters params, AuthToken authPart, String currentDir) throws Exception  {
 		//start job

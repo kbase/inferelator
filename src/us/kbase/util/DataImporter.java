@@ -20,7 +20,7 @@ import us.kbase.kbasegenomes.Genome;
 
 public class DataImporter {
 
-	private static final String ID_SERVICE_URL = InferelatorServerConfig.ID_SERVICE_URL;
+	private static final String ID_SERVICE_URL = InferelatorServerConfig.getIdUrl();
 	private static IDServerAPIClient _idClient = null;
 
 	

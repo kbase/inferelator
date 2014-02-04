@@ -32,6 +32,7 @@ public class InferelatorServer extends JsonServerServlet {
     public InferelatorServer() throws Exception {
         super("Inferelator");
         //BEGIN_CONSTRUCTOR
+        InferelatorServerImpl.startup();
         //END_CONSTRUCTOR
     }
 

@@ -18,6 +18,10 @@ SERVICE_PSGI = $(SERVICE_NAME).psgi
 TPAGE_ARGS = --define kb_top=$(TARGET) --define kb_runtime=$(DEPLOY_RUNTIME) --define kb_service_name=$(SERVICE_NAME) --define kb_service_dir=$(SERVICE_DIR) --define kb_service_port=$(SERVICE_PORT) --define kb_psgi=$(SERVICE_PSGI)
 DEPLOY_JAR = $(KB_TOP)/lib/jars/inferelator
 JOB_DIR = /var/tmp/inferelator
+UJS_SERVICE_URL ?= https://kbase.us/services/userandjobstate
+AWE_CLIENT_URL ?= http://140.221.85.171:7080/job
+ID_SERVICE_URL ?= https://kbase.us/services/idserver
+WS_SERVICE_URL ?= https://kbase.us/services/ws
 
 default: compile
 
@@ -83,6 +87,7 @@ distrib:
 	cp -f ./glassfish_start_service.sh $(TARGET_DIR)
 	cp -f ./glassfish_stop_service.sh $(TARGET_DIR)
 	cp -f ./inferelator.awf $(TARGET_DIR)
+	echo "inferelator=$(DEPLOY_RUNTIME)/cmonkey-python/inferelator/\nujs_url=$(UJS_SERVICE_URL)\nawe_url=$(AWE_CLIENT_URL)\nid_url=$(ID_SERVICE_URL)\nws_url=$(WS_SERVICE_URL)\nawf_config=$(TARGET_DIR)/inferelator.awf" > $(TARGET_DIR)/inferelator.properties
 	echo "./glassfish_start_service.sh $(TARGET_DIR)/service.war $(TARGET_PORT) $(THREADPOOL_SIZE)" > $(TARGET_DIR)/start_service.sh
 	chmod +x $(TARGET_DIR)/start_service.sh
 	echo "./glassfish_stop_service.sh $(TARGET_PORT)" > $(TARGET_DIR)/stop_service.sh
