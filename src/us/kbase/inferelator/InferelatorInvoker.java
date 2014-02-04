@@ -190,6 +190,7 @@ public class InferelatorInvoker {
 
 		public static void main(String[] args) throws Exception {
 			
+			InferelatorServerImpl.startup();
 			InferelatorInvoker invoker = new InferelatorInvoker();
 			invoker.run(args);
 		}
