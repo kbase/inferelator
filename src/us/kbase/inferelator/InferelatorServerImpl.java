@@ -52,30 +52,22 @@ import us.kbase.workspace.ObjectData;
 
 public class InferelatorServerImpl {
 
-	private static String INFERELATOR_RUN_RESULT_TYPE = InferelatorServerConfig.INFERELATOR_RUN_RESULT_TYPE;
-	private static String JOB_SERVICE = InferelatorServerConfig.JOB_SERVICE_URL;
-	private static String ID_SERVICE_URL = InferelatorServerConfig.ID_SERVICE_URL;
-	private static boolean deployAwe = InferelatorServerConfig.DEPLOY_AWE;
 
-	private static String JOB_PATH = InferelatorServerConfig.JOB_DIRECTORY;
-	private static String INFERELATOR_DIR = InferelatorServerConfig.INFERELATOR_DIRECTORY;
-	private static String INFERELATOR_RUN_PATH = InferelatorServerConfig.INFERELATOR_RUN_PATH;
 	public static final String inputNetworkFileName = "dataset.json";
 	public static final String inputExpressionFileName = "ratios.tsv.gz";
 	public static final String inputTflistFileName = "tflist.txt";
 	public static final String outputFileName = "outfile.json";
 
 	private static IDServerAPIClient _idClient = null;
-//	private static Date date = new Date();
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 	
 	protected static IDServerAPIClient idClient() {
 		URL idServerUrl = null;
 
 		try {
-			idServerUrl = new URL(ID_SERVICE_URL);
+			idServerUrl = new URL(InferelatorServerConfig.ID_SERVICE_URL);
 		} catch (MalformedURLException e1) {
-			System.err.println("Unable to reach ID service at "+ID_SERVICE_URL);
+			System.err.println("Unable to reach ID service at "+InferelatorServerConfig.ID_SERVICE_URL);
 			e1.printStackTrace();
 		}
 		if(_idClient == null)
@@ -129,11 +121,11 @@ public class InferelatorServerImpl {
 					"AWE task started. Preparing input...", authPart);
 		//make job directory
 		String jobPath = "";
-		if (deployAwe){
+		if (InferelatorServerConfig.DEPLOY_AWE){
 			jobPath = currentDir + "/" + jobId + "/";
 			new File(jobPath).mkdir();
 		} else {
-			jobPath = JOB_PATH + jobId + "/";
+			jobPath = InferelatorServerConfig.JOB_DIRECTORY + jobId + "/";
 			new File(jobPath).mkdir();
 		}
 		System.setErr(new PrintStream(new File(jobPath + "servererror.txt")));
@@ -195,7 +187,7 @@ public class InferelatorServerImpl {
 		//run inferelator
 		if (jobId != null)
 			updateJobProgress(jobId, "Input prepared. Starting Inferelator...",authPart);
-		String inferelatorCommandLine = INFERELATOR_RUN_PATH + " --tfsfile " + jobPath + inputTflistFileName +
+		String inferelatorCommandLine = InferelatorServerConfig.INFERELATOR_RUN_PATH + " --tfsfile " + jobPath + inputTflistFileName +
 				" --json " + jobPath + inputNetworkFileName + " --ratios " +
 				jobPath + inputExpressionFileName + " --outfile "+ jobPath + outputFileName;
 		writer.write("Run Inferelator : " + inferelatorCommandLine + "\n");
@@ -243,7 +235,7 @@ public class InferelatorServerImpl {
 		//save run result
 		if (jobId != null) updateJobProgress (jobId, "Output created. Saving to workspace...", authPart);
 		try {
-			WsDeluxeUtil.saveObjectToWorkspace(UObject.transformObjectToObject(runResult, UObject.class), INFERELATOR_RUN_RESULT_TYPE, wsName, runResult.getId(), authPart.toString());
+			WsDeluxeUtil.saveObjectToWorkspace(UObject.transformObjectToObject(runResult, UObject.class), InferelatorServerConfig.INFERELATOR_RUN_RESULT_TYPE, wsName, runResult.getId(), authPart.toString());
 		} catch (TokenFormatException e) {
 			finishJobWithError(jobId, e.getMessage(), "Inferelator result upload error", authPart);
 			e.printStackTrace();
@@ -266,7 +258,7 @@ public class InferelatorServerImpl {
 		writer.flush();
 		writer.close();
 		//clean up
-		if (!deployAwe){
+		if (!InferelatorServerConfig.DEPLOY_AWE){
 			File fileDelete = new File(jobPath);
 			deleteDirectoryRecursively(fileDelete);
 		}
@@ -428,7 +420,7 @@ public class InferelatorServerImpl {
 		Date date = new Date();
 		date.setTime(date.getTime()+108000000L);
 		
-		URL jobServiceUrl = new URL(JOB_SERVICE);
+		URL jobServiceUrl = new URL(InferelatorServerConfig.JOB_SERVICE_URL);
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(jobServiceUrl, token);
 		jobClient.startJob(jobId, AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken().toString(), status, desc, initProgress, dateFormat.format(date));
 		jobClient = null;
@@ -437,7 +429,7 @@ public class InferelatorServerImpl {
 	protected static void updateJobProgress (String jobId, String status, AuthToken token) throws IOException, JsonClientException, AuthException{
 		Date date = new Date();
 		date.setTime(date.getTime()+1000000L);
-		URL jobServiceUrl = new URL(JOB_SERVICE);
+		URL jobServiceUrl = new URL(InferelatorServerConfig.JOB_SERVICE_URL);
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(jobServiceUrl, token);
 		jobClient.updateJobProgress(jobId, AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken().toString(), status, 1L, dateFormat.format(date));
 		jobClient = null;
@@ -450,7 +442,7 @@ public class InferelatorServerImpl {
 		List<String> workspaceIds = new ArrayList<String>();
 		workspaceIds.add(wsId + "/" + objectId);
 		res.setWorkspaceids(workspaceIds);
-		URL jobServiceUrl = new URL(JOB_SERVICE);
+		URL jobServiceUrl = new URL(InferelatorServerConfig.JOB_SERVICE_URL);
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(jobServiceUrl, token);
 		jobClient.completeJob(jobId, AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken().toString(), status, error, res);
 		jobClient = null;
@@ -459,7 +451,7 @@ public class InferelatorServerImpl {
 	protected static void finishJobWithError(String jobId, String error, String status, AuthToken token) throws UnauthorizedException,
 	IOException, JsonClientException, AuthException {
 		Results res = new Results();
-		URL jobServiceUrl = new URL(JOB_SERVICE);
+		URL jobServiceUrl = new URL(InferelatorServerConfig.JOB_SERVICE_URL);
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(jobServiceUrl, token);
 		jobClient.completeJob(jobId, AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken().toString(), status, error, res);
 	}
@@ -486,7 +478,7 @@ public class InferelatorServerImpl {
 	
 	protected static Integer executeCommand(String commandLine, String jobPath, String jobId, AuthToken authPart) throws InterruptedException, IOException {
 		Integer exitVal = null;
-		Process p = Runtime.getRuntime().exec(commandLine, null, new File(INFERELATOR_DIR));
+		Process p = Runtime.getRuntime().exec(commandLine, null, new File(InferelatorServerConfig.INFERELATOR_DIRECTORY));
 		StreamGobbler errorGobbler = new StreamGobbler(p.getErrorStream(), "ERROR", jobId, authPart, jobPath+"errorlog.txt");            
             // any output?
 		StreamGobbler outputGobbler = new StreamGobbler(p.getInputStream(), "OUTPUT", jobId, authPart, jobPath+"out.txt");

@@ -37,17 +37,12 @@ import us.kbase.userandjobstate.UserAndJobStateClient;
 
 public class InferelatorServerCaller {
 
-	private static final String JOB_SERVICE = InferelatorServerConfig.JOB_SERVICE_URL;
-	private static final String AWE_SERVICE = InferelatorServerConfig.AWE_SERVICE_URL;
-	private static boolean deployAwe = InferelatorServerConfig.DEPLOY_AWE;
-	private static final String AWF_CONFIG_FILE = InferelatorServerConfig.AWF_CONFIG_FILE;
-	
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ssZ");
 
 	public static String findInteractionsWithInferelator(String wsName, InferelatorRunParameters params, AuthToken authPart) throws Exception{
 		
-		URL jobServiceUrl = new URL(JOB_SERVICE);
+		URL jobServiceUrl = new URL(InferelatorServerConfig.JOB_SERVICE_URL);
 		Date date = new Date();
 		date.setTime(date.getTime() + 10000L);
 
@@ -63,7 +58,7 @@ public class InferelatorServerCaller {
 				dateFormat.format(date));
 		jobClient = null;
 		
-		if (deployAwe) {
+		if (InferelatorServerConfig.DEPLOY_AWE) {
 			String jsonArgs = formatAWEConfig(returnVal, wsName, params, authPart.toString());
 
 			if (InferelatorServerConfig.LOG_AWE_CALLS) {
@@ -127,7 +122,7 @@ public class InferelatorServerCaller {
 		String formattedConfig;
 		try {
 			String config = FileUtils.readFileToString(new File(
-					AWF_CONFIG_FILE));
+					InferelatorServerConfig.AWF_CONFIG_FILE));
 			String args = " --job " + jobId	+ " --method find_interactions_with_inferelator --ws '" + wsName
 					+ "' --series '" + params.getExpressionSeriesWsRef() + "' --tflist '"
 					+ params.getTfListWsRef()  + "' --cmonkey '" + params.getCmonkeyRunResultWsRef() + "'"
@@ -135,7 +130,7 @@ public class InferelatorServerCaller {
 			formattedConfig = String.format(config, jobId, args, jobId);
 		} catch (IOException e) {
 			throw new Exception("Can not load AWE config file: "
-					+ AWF_CONFIG_FILE);
+					+ InferelatorServerConfig.AWF_CONFIG_FILE);
 		}
 		return formattedConfig;
 	}
@@ -145,7 +140,7 @@ public class InferelatorServerCaller {
 		Date date = new Date();
 		date.setTime(date.getTime() + 10000L);
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(new URL(
-				JOB_SERVICE), new AuthToken(token));
+				InferelatorServerConfig.JOB_SERVICE_URL), new AuthToken(token));
 		// jobClient.setAuthAllowedForHttp(true);
 		jobClient.updateJobProgress(jobId, AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken().toString(), status, tasks,
 				dateFormat.format(date));
@@ -161,7 +156,7 @@ public class InferelatorServerCaller {
 		if (rootNode.has("data")){
 			JsonNode dataNode = rootNode.get("data");
 			if (dataNode.has("id")){
-				aweId = AWE_SERVICE + "/" + dataNode.get("id").textValue();
+				aweId = InferelatorServerConfig.AWE_SERVICE_URL + "/" + dataNode.get("id").textValue();
 				System.out.println(aweId);
 				updateJobProgress(returnVal, "AWE job submitted: " + aweId, 1L, authPart.toString());
 			}
