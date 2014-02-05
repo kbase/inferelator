@@ -102,7 +102,7 @@ public class InferelatorServerImpl {
 			System.out.println(prop.getProperty("id_url"));
 			System.out.println(prop.getProperty("ws_url"));
 			System.out.println(prop.getProperty("awf_config"));
-			InferelatorServerConfig.JOB_SERVICE_URL = prop.getProperty("inferelator");
+			InferelatorServerConfig.INFERELATOR_DIRECTORY = prop.getProperty("inferelator");
 			InferelatorServerConfig.JOB_SERVICE_URL = prop.getProperty("ujs_url");
 			InferelatorServerConfig.AWE_SERVICE_URL = prop.getProperty("awe_url");
 			InferelatorServerConfig.ID_SERVICE_URL = prop.getProperty("id_url");
