@@ -19,7 +19,7 @@ public class InferelatorServerConfig {
 	//Paths
 	protected static final String JOB_DIRECTORY = "/var/tmp/inferelator/";
 	protected static String INFERELATOR_DIRECTORY; // "/kb/runtime/cmonkey-python/inferelator/";
-	protected static String INFERELATOR_RUN_PATH = INFERELATOR_DIRECTORY + "run_inf.R";
+	protected static String INFERELATOR_RUN_PATH; // INFERELATOR_DIRECTORY + "run_inf.R";
 	protected static String AWF_CONFIG_FILE; // "/kb/deployment/services/inferelator/inferelator.awf";
 
 	//Logging options

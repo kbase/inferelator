@@ -18,7 +18,7 @@ import us.kbase.util.WsDeluxeUtil;
 
 public class InferelatorClientTest {
 
-	private static final String JOB_SERVICE = InferelatorServerConfig.JOB_SERVICE_URL;
+	private static final String JOB_SERVICE = "https://kbase.us/services/userandjobstate";
 	
 	private static final String USER_NAME = "";
 	private static final String PASSWORD = "";

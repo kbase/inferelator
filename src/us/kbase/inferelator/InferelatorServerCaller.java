@@ -44,7 +44,7 @@ public class InferelatorServerCaller {
 		
 		URL jobServiceUrl = new URL(InferelatorServerConfig.JOB_SERVICE_URL);
 		Date date = new Date();
-		date.setTime(date.getTime() + 10000L);
+		date.setTime(date.getTime() + 100000L);
 
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(
 				jobServiceUrl, authPart);
@@ -138,7 +138,7 @@ public class InferelatorServerCaller {
 	protected static void updateJobProgress(String jobId, String status,
 			Long tasks, String token) throws MalformedURLException, IOException, JsonClientException, AuthException {
 		Date date = new Date();
-		date.setTime(date.getTime() + 10000L);
+		date.setTime(date.getTime() + 100000L);
 		UserAndJobStateClient jobClient = new UserAndJobStateClient(new URL(
 				InferelatorServerConfig.JOB_SERVICE_URL), new AuthToken(token));
 		// jobClient.setAuthAllowedForHttp(true);

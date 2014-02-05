@@ -78,7 +78,12 @@ public class InferelatorServerImpl {
 	} 
 
 	public static void startup() {
-		File propertiesFile = new File (System.getenv("KB_TOP") + "/services/inferelator/inferelator.properties");
+		File propertiesFile;
+		String kbTop = System.getenv("KB_TOP");
+		if (!kbTop.substring(kbTop.length() - 1).equals("/")) {
+			kbTop = kbTop + "/";
+		}
+		propertiesFile = new File (kbTop + "/services/inferelator/inferelator.properties");
 		Properties prop = new Properties();
 		InputStream input = null;
 		 
@@ -88,13 +93,8 @@ public class InferelatorServerImpl {
 			// load a properties file
 			prop.load(input);
 			// set service configs
-			System.err.println(prop.getProperty("inferelator"));
-			System.err.println(prop.getProperty("ujs_url"));
-			System.err.println(prop.getProperty("awe_url"));
-			System.err.println(prop.getProperty("id_url"));
-			System.err.println(prop.getProperty("ws_url"));
-			System.err.println(prop.getProperty("awf_config"));
 			InferelatorServerConfig.INFERELATOR_DIRECTORY = prop.getProperty("inferelator");
+			InferelatorServerConfig.INFERELATOR_RUN_PATH = InferelatorServerConfig.INFERELATOR_DIRECTORY + "run_inf.R";
 			InferelatorServerConfig.JOB_SERVICE_URL = prop.getProperty("ujs_url");
 			InferelatorServerConfig.AWE_SERVICE_URL = prop.getProperty("awe_url");
 			InferelatorServerConfig.ID_SERVICE_URL = prop.getProperty("id_url");
