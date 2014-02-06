@@ -43,6 +43,17 @@ distrib-jar:
 
 deploy-client: deploy-libs deploy-pl-scripts deploy-docs
 
+init:
+	git submodule init
+	git submodule update
+	mkdir -p bin
+	mkdir -p classes
+	echo "export PATH=$(DEPLOY_RUNTIME)/bin" > bin/compile_typespec
+	echo "export PERL5LIB=$(DIR)/typecomp/lib" >> bin/compile_typespec
+	echo "perl $(DIR)/typecomp/scripts/compile_typespec.pl \"\$$@\"" >> bin/compile_typespec 
+	echo $(DIR) > classes/kidlinit
+	chmod a+x bin/compile_typespec
+
 deploy-libs: build-libs
 	rsync --exclude '*.bak*' -arv lib/. $(TARGET)/lib/.
 
@@ -88,10 +99,10 @@ distrib:
 	cp -f ./glassfish_stop_service.sh $(TARGET_DIR)
 	cp -f ./inferelator.awf $(TARGET_DIR)
 	echo "inferelator=$(DEPLOY_RUNTIME)/cmonkey-python/inferelator/\nujs_url=$(UJS_SERVICE_URL)\nawe_url=$(AWE_CLIENT_URL)\nid_url=$(ID_SERVICE_URL)\nws_url=$(WS_SERVICE_URL)\nawf_config=$(TARGET_DIR)/inferelator.awf" > $(TARGET_DIR)/inferelator.properties
-	echo "./glassfish_start_service.sh $(TARGET_DIR)/service.war $(TARGET_PORT) $(THREADPOOL_SIZE)" > $(TARGET_DIR)/start_service.sh
-	chmod +x $(TARGET_DIR)/start_service.sh
-	echo "./glassfish_stop_service.sh $(TARGET_PORT)" > $(TARGET_DIR)/stop_service.sh
-	chmod +x $(TARGET_DIR)/stop_service.sh
+	echo "./glassfish_start_service.sh $(TARGET_DIR)/service.war $(TARGET_PORT) $(THREADPOOL_SIZE)" > $(TARGET_DIR)/start_service
+	chmod +x $(TARGET_DIR)/start_service
+	echo "./glassfish_stop_service.sh $(TARGET_PORT)" > $(TARGET_DIR)/stop_service
+	chmod +x $(TARGET_DIR)/stop_service
 
 build-docs: compile-docs
 	pod2html --infile=lib/Bio/KBase/$(SERVICE_NAME)/Client.pm --outfile=docs/$(SERVICE_NAME).html
@@ -99,7 +110,7 @@ build-docs: compile-docs
 compile-docs: build-libs
 
 build-libs:
-	compile_typespec \
+	./bin/compile_typespec \
 		--psgi $(SERVICE_PSGI)  \
 		--impl Bio::KBase::$(SERVICE_NAME)::$(SERVICE_NAME)Impl \
 		--service Bio::KBase::$(SERVICE_NAME)::Service \
@@ -127,6 +138,7 @@ test-jar:
 	if [ $$? -ne 0 ] ; then \
 		exit 1 ; \
 	fi \
+
 
 clean:
 	@echo "nothing to clean"
