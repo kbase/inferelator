@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -15,6 +17,9 @@ import us.kbase.common.service.Tuple7;
 import us.kbase.userandjobstate.Results;
 import us.kbase.userandjobstate.UserAndJobStateClient;
 import us.kbase.util.WsDeluxeUtil;
+import us.kbase.workspace.ObjectData;
+import us.kbase.workspace.ObjectIdentity;
+import us.kbase.workspace.WorkspaceClient;
 
 public class InferelatorClientTest {
 
@@ -97,11 +102,18 @@ public class InferelatorClientTest {
 		
 		String[] resultIdParts = resultId.split("/");
 		resultId = resultIdParts[1];
+
+		WorkspaceClient wsClient = new WorkspaceClient(new URL ("https://kbase.us/services/ws"), new AuthToken(token.toString()));
+		wsClient.setAuthAllowedForHttp(true);
 		
-		InferelatorRunResult result = WsDeluxeUtil.getObjectFromWorkspace(workspaceName, resultId, token.toString()).getData().asClassInstance(InferelatorRunResult.class);
+		List<ObjectIdentity> objectsIdentity = new ArrayList<ObjectIdentity>();
+		ObjectIdentity objectIdentity = new ObjectIdentity().withName(resultId).withWorkspace(workspaceName);
+		objectsIdentity.add(objectIdentity);
+		InferelatorRunResult result = wsClient.getObjects(objectsIdentity).get(0).getData().asClassInstance(InferelatorRunResult.class);
+
 		
 		assertNotNull(result.getHits().get(0));
-		assertEquals(1641, result.getHits().size());
+		assertEquals(1659, result.getHits().size());
 //		assertEquals("VNG1786", result.getHits().get(0).getTfId());
 //		assertEquals(Double.valueOf("0.09119"), result.getHits().get(0).getCoeff());
 

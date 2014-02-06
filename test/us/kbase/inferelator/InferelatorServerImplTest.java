@@ -43,7 +43,7 @@ import us.kbase.workspace.WorkspaceClient;
 
 public class InferelatorServerImplTest {
 
-	private static final String JOB_SERVICE = InferelatorServerConfig.JOB_SERVICE_URL;
+	private static final String JOB_SERVICE = "https://kbase.us/services/userandjobstate";
 
 	private static final String USER_NAME = "";
 	private static final String PASSWORD = "";
@@ -487,7 +487,7 @@ public class InferelatorServerImplTest {
 
 	@Test
 	public void testDeleteJob() throws AuthException, IOException, UnauthorizedException, JsonClientException {
-		String jobId = "52e71254e4b0ef83573320ed";
+		String jobId = "52e71e92e4b0ef83573320f2";
 
 //		AuthToken token = AuthService.login(JOB_ACCOUNT, new String(JOB_PASSWORD)).getToken();
 		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
