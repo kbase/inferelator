@@ -29,8 +29,9 @@ public class InferelatorClientTest {
 	private static final String PASSWORD = "";
 	private static final String workspaceName = "AKtest";
 	
+	private String serverUrl = "http://kbase.us/services/inferelator/";
 //	private String serverUrl = "http://localhost:7081";
-	private String serverUrl = "http://140.221.85.173:7079/";
+//	private String serverUrl = "http://140.221.85.173:7079/";
 	//private String genomeRef = "AKtest/Halobacterium_sp_NRC-1";
 
 	private String testSeriesRef = "AKtest/Halobacterium_sp_expression_series";

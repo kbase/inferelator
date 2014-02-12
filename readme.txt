@@ -8,7 +8,7 @@ make deploy
 
 Deployment of Inferelator service requires typecomp (dev-prototype branch) and java type generator (dev branch).
 Inferelator server calls AWE client to run Inferelator tool. To install Inferelator service back-end for AWE client, clone inferelator.git repository on the host running AWE client and run command 'make deploy-jar'. This command will work with master branches of typecomp and java type generator as well.
-URL of AWE client can be changed in us.kbase.inferelator.InferelatorServerConfig source file. Run "make", "make deploy" and then restart the service to apply changes.
+URL of AWE client can be changed in Makefile. Run "make", "make deploy" and then restart the service to apply changes.
 
 Requirements for Inferelator installation on AWE server:
 cmonkey-python (installation script in bootstrap.git repo: ./kb_cmonkey/build.cmonkey)

@@ -1,2 +1,2 @@
-#group-name	inferelator	Inferelator
+#group-name	inferelator	Inferelator Regulatory Network Inference
 #command-set	scripts/(.*).pl	inferelator
