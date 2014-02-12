@@ -25,7 +25,7 @@ my $auth_token = $token->token;
 
 my $job_client = Bio::KBase::userandjobstate::Client->new("https://kbase.us/services/userandjobstate", "user_id", $user, "password", $pw);
 
-my $deployment_dir = "/kb/deployment/lib/jars/inferelator/";
+my $deployment_dir = $ENV{'KB_TOP'}."/lib/jars/inferelator/";
 
 my $command_line = "java -jar ".$deployment_dir."inferelator.jar";
 

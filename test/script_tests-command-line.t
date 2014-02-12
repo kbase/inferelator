@@ -23,7 +23,7 @@ my $tflist_ref = "\"AKtest/Halobacterium_sp_TFs\"";
 
 
 #1
-my $tes = Test::Cmd->new(prog => "$bin/run_inferelator.pl", workdir => '', interpreter => '/kb/runtime/bin/perl');
+my $tes = Test::Cmd->new(prog => "$bin/run_inferelator.pl", workdir => '', interpreter => 'perl');
 ok($tes, "creating Test::Cmd object for run_inferelator");
 $tes->run(args => "--url=$url --ws=$ws --series=$series_ref --cmonkey=$cmonkey_ref --tflist=$tflist_ref --user=$user --pw=$pw");
 ok($? == 0,"Running run_inferelator");
