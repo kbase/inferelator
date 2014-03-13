@@ -111,7 +111,7 @@ build-libs:
 compile: src lib
 	./make_war.sh $(SERVLET_CLASS)
 
-test: test-scripts test-jar
+test: test-scripts
 	@echo "running script tests"
 
 test-scripts:

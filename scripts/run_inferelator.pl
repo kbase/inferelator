@@ -8,7 +8,7 @@ use Carp;
 
 =head1 SYNOPSIS
 
-    run_inferelator [--url=http://140.221.85.173:7079/ --ws=<workspace name for run result> --series=<expression data series reference> --cmonkey=<cmonkey run result reference> --tflist=<regulators list reference> --user=<username> --pw=<password>]
+    run_inferelator [--url=http://140.221.85.173:7079/ --ws=<workspace name for run result> --series=<expression data series reference> --cmonkey=<cmonkey run result reference> --tflist=<regulators list reference>]
 
 =head1 DESCRIPTION
 
@@ -43,17 +43,11 @@ use Carp;
 =item B<--tflist>
     Workspace reference to GeneList object with IDs of regulatory genes
 
-=item B<--user>
-    User name
-
-=item B<--pw>
-    Password
-
 =back
 
 =head1 EXAMPLE
 
-    run_inferelator --url=http://140.221.85.173:7079/ --ws="AKtest" --series="AKtest/Halobacterium_sp_NRC1_series" --cmonkey="AKtest/kb|cmonkeyrunresult.132" --tflist="AKtest/kb|genelist.5" --user=<username> --pw=<password>
+    run_inferelator --url=http://140.221.85.173:7079/ --ws="AKtest" --series="AKtest/Halobacterium_sp_NRC1_series" --cmonkey="AKtest/kb|cmonkeyrunresult.132" --tflist="AKtest/kb|genelist.5"
     run_inferelator --help
     run_inferelator --version
 
@@ -65,18 +59,18 @@ use Carp;
 
 use Getopt::Long;
 use Bio::KBase::inferelator::Client;
+use Config::Simple;
+use Bio::KBase::Auth;
 use Bio::KBase::AuthToken;
 use Bio::KBase::AuthUser;
 
-my $usage = "Usage: run_inferelator [--url=http://140.221.85.173:7079/ --ws=<workspace name for run result> --series=<expression data series reference> --cmonkey=<cmonkey run result reference> --tflist=<regulators list reference> --user=<username> --pw=<password>]\n";
+my $usage = "Usage: run_inferelator [--url=http://140.221.85.173:7079/ --ws=<workspace name for run result> --series=<expression data series reference> --cmonkey=<cmonkey run result reference> --tflist=<regulators list reference>]\n";
 
 my $url        = "http://140.221.85.173:7079/";
 my $ws         = "";
 my $series     = "";
 my $cmonkey    = "";
 my $tflist     = "";
-my $user       = "";
-my $pw         = "";
 my $help       = 0;
 my $version    = 0;
 
@@ -86,8 +80,6 @@ GetOptions("help"       => \$help,
            "series=s"    => \$series,
            "cmonkey=s"    => \$cmonkey,
            "tflist=s"    => \$tflist,
-           "user=s"    => \$user,
-           "pw=s"    => \$pw,
            "url=s"     => \$url) 
            or exit(1);
 
@@ -100,7 +92,7 @@ print "VERSION\n";
 print "1.0\n";
 print "\n";
 print "SYNOPSIS\n";
-print "run_inferelator [--url=http://140.221.85.173:7079/ --ws=<workspace name for run result> --series=<expression data series reference> --cmonkey=<cmonkey run result reference> --tflist=<regulators list reference> --user=<username> --pw=<password>]\n";
+print "run_inferelator [--url=http://140.221.85.173:7079/ --ws=<workspace name for run result> --series=<expression data series reference> --cmonkey=<cmonkey run result reference> --tflist=<regulators list reference>]\n";
 print "\n";
 print "DESCRIPTION\n";
 print "INPUT:            This command requires the URL of the service, workspace name, and workspace references for three input data objects.\n";
@@ -118,17 +110,13 @@ print "--cmonkey         Workspace reference to CmonkeyRunResult object, require
 print "\n";
 print "--tflist          Workspace reference to GeneList object with IDs of regulatory genes, required.\n";
 print "\n";
-print "--user            User name for access to workspace, required.\n";
-print "\n";
-print "--pw              Password for access to workspace, required.\n";
-print "\n";
 print "--help            Display help message to standard out and exit with error code zero; \n";
 print "                  ignore all other command-line arguments.  \n";
 print "--version         Print version information. \n";
 print "\n";
 print " \n";
 print "EXAMPLES \n";
-print "run_inferelator --url=http://140.221.85.173:7079/ --ws=\"AKtest\" --series=\"AKtest/Halobacterium_sp_NRC1_series\" --cmonkey=\"AKtest/kb|cmonkeyrunresult.132\" --tflist=\"AKtest/kb|genelist.5\" --user=<username> --pw=<password>\n";
+print "run_inferelator --url=http://140.221.85.173:7079/ --ws=\"AKtest\" --series=\"AKtest/Halobacterium_sp_NRC1_series\" --cmonkey=\"AKtest/kb|cmonkeyrunresult.132\" --tflist=\"AKtest/kb|genelist.5\"\n";
 print "\n";
 print "This command will return a Job object ID.\n";
 print "\n";
@@ -154,9 +142,22 @@ unless (@ARGV == 0){
     exit(1);
 };
 
+my $token='';
+my $user="";
+my $pw="";
 my $auth_user = Bio::KBase::AuthUser->new();
-my $token = Bio::KBase::AuthToken->new( user_id => $user, password => $pw);
-$auth_user->get( token => $token->token );
+my $kbConfPath = $Bio::KBase::Auth::ConfPath;
+
+if (defined($ENV{KB_RUNNING_IN_IRIS})) {
+        $token = $ENV{KB_AUTH_TOKEN};
+} elsif ( -e $kbConfPath ) {
+        my $cfg = new Config::Simple($kbConfPath);
+        $user = $cfg->param("authentication.user_id");
+        $pw = $cfg->param("authentication.password");
+        $cfg->close();
+        $token = Bio::KBase::AuthToken->new( user_id => $user, password => $pw);
+        $auth_user->get( token => $token->token );
+}
 
 if ($token->error_message){
 	print $token->error_message."\n\n";
