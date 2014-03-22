@@ -5,26 +5,20 @@
 		"project": "default",
 		"user": "default",
 		"clientgroups":"",
-		"sessionId":"%s" 
+		"sessionId":"%s"
 	},
 	
 	"tasks": [
 		{
 			"cmd": {
-				"args": "%s",		
-				"description": "running Inferelator service", 
+				"args": "%s",
+				"description": "running Inferelator service",
 				"name": "run_inferelator_awe"
-			}, 
-			"dependsOn": [], 
-			"outputs": {
-				"%s.tgz": {
-					"host": "http://140.221.84.236:8000"
-				}
 			},
-			
+			"dependsOn": [],
 			"taskid": "0",
 			"skip": 0,
 			"totalwork": 1
 		}
 	]
-}	
+}
