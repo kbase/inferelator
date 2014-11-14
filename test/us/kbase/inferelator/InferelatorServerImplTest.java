@@ -7,7 +7,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,7 @@ import us.kbase.common.service.Tuple11;
 import us.kbase.common.service.Tuple7;
 import us.kbase.common.service.UObject;
 import us.kbase.common.service.UnauthorizedException;
+import us.kbase.userandjobstate.InitProgress;
 import us.kbase.userandjobstate.Results;
 import us.kbase.userandjobstate.UserAndJobStateClient;
 import us.kbase.util.DataImporter;
@@ -43,6 +46,8 @@ import us.kbase.workspace.WorkspaceClient;
 
 public class InferelatorServerImplTest {
 
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat(
+			"yyyy-MM-dd'T'HH:mm:ssZ");
 	private static final String JOB_SERVICE = "https://kbase.us/services/userandjobstate";
 
 	private static final String USER_NAME = "";
@@ -498,4 +503,24 @@ public class InferelatorServerImplTest {
 		jobClient.forceDeleteJob(serviceToken.toString(), jobId);
 	}
 
+	@Test
+	public void testCreateStartJob() throws AuthException, IOException, UnauthorizedException, JsonClientException {
+		
+//		AuthToken token = AuthService.login(JOB_ACCOUNT, new String(JOB_PASSWORD)).getToken();
+		AuthToken token = AuthService.login(USER_NAME, new String(PASSWORD)).getToken();
+		AuthToken serviceToken = AuthService.login(InferelatorServerConfig.SERVICE_LOGIN, new String(InferelatorServerConfig.SERVICE_PASSWORD)).getToken();
+		Date date = new Date();
+		date.setTime(date.getTime() + 100000L);
+
+		URL jobServiceUrl = new URL(JOB_SERVICE);
+		UserAndJobStateClient jobClient = new UserAndJobStateClient(jobServiceUrl, token);
+		String jobId = jobClient.createJob();
+		jobClient.startJob(jobId, serviceToken.toString(),
+				"Starting test Inferelator service job...",
+				"Inferelator service test job " + jobId,
+				new InitProgress().withPtype("task").withMax(5L),
+				dateFormat.format(date));
+		System.out.println(jobId);
+		
+	}
 }

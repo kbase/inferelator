@@ -29,7 +29,7 @@ deploy: distrib deploy-client deploy-jar
 
 deploy-all: distrib deploy-client
 
-deploy-jar: compile-jar deploy-sh-scripts distrib-jar
+deploy-jar: compile-jar deploy-sh-scripts deploy-properties distrib-jar
 
 compile-jar: src lib
 	./make_jar.sh $(MAIN_CLASS)
@@ -79,7 +79,10 @@ deploy-sh-scripts:
 		$(WRAP_SH_SCRIPT) "$(TARGET)/shbin/$$basefile" $(TARGET)/bin/$$base ; \
 	done 
 
-distrib:
+deploy-properties:
+	echo "inferelator=$(DEPLOY_RUNTIME)/cmonkey-python/inferelator/\nujs_url=$(UJS_SERVICE_URL)\nawe_url=$(AWE_CLIENT_URL)\nid_url=$(ID_SERVICE_URL)\nws_url=$(WS_SERVICE_URL)\nawf_config=$(TARGET_DIR)/inferelator.awf" > $(TARGET_DIR)/inferelator.properties
+
+distrib: deploy-properties
 	@echo "Target folder: $(TARGET_DIR)"
 	mkdir -p $(TARGET_DIR)
 	mkdir -p $(JOB_DIR)
@@ -87,7 +90,6 @@ distrib:
 	cp -f ./glassfish_start_service.sh $(TARGET_DIR)
 	cp -f ./glassfish_stop_service.sh $(TARGET_DIR)
 	cp -f ./inferelator.awf $(TARGET_DIR)
-	echo "inferelator=$(DEPLOY_RUNTIME)/cmonkey-python/inferelator/\nujs_url=$(UJS_SERVICE_URL)\nawe_url=$(AWE_CLIENT_URL)\nid_url=$(ID_SERVICE_URL)\nws_url=$(WS_SERVICE_URL)\nawf_config=$(TARGET_DIR)/inferelator.awf" > $(TARGET_DIR)/inferelator.properties
 	echo "./glassfish_start_service.sh $(TARGET_DIR)/service.war $(TARGET_PORT) $(THREADPOOL_SIZE)" > $(TARGET_DIR)/start_service.sh
 	chmod +x $(TARGET_DIR)/start_service.sh
 	echo "./glassfish_stop_service.sh $(TARGET_PORT)" > $(TARGET_DIR)/stop_service.sh
