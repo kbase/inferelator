@@ -56,12 +56,12 @@ deploy-worker: deploy-properties distrib-worker
 	echo 'export KB_TOP=$(KB_TOP)' >> $(AWE_WORKER_SCRIPT)
 	echo 'export KB_RUNTIME=$(KB_RUNTIME)' >> $(AWE_WORKER_SCRIPT)
 	echo 'export JAVA_HOME=$(JAVA_HOME)' >> $(AWE_WORKER_SCRIPT)
-	echo 'export PATH=$$KB_RUNTIME/bin:$$KB_TOP/bin:$$JAVA_HOME/bin:$$PATH' >> $(AWE_WORKER_SCRIPT)
-	echo 'mkdir -p $2' >> $(AWE_WORKER_SCRIPT)
-	echo 'java -jar $KB_TOP/lib/jars/inferelator/inferelator.jar $@ 2> $2/error.log' >> $(AWE_WORKER_SCRIPT)
-	echo 'tar cvfz $2.tgz $2' >> $(AWE_WORKER_SCRIPT)
-	echo 'cp $2.tgz /var/tmp/inferelator' >> $(AWE_WORKER_SCRIPT)
-	echo 'rm -rf $2' >> $(AWE_WORKER_SCRIPT)
+	echo 'export PATH=$(KB_RUNTIME)/bin:$(KB_TOP)/bin:$(JAVA_HOME)/bin:$$PATH' >> $(AWE_WORKER_SCRIPT)
+	echo 'mkdir -p $$2' >> $(AWE_WORKER_SCRIPT)
+	echo 'java -jar $$KB_TOP/lib/jars/inferelator/inferelator.jar $$@ 2> $$2/error.log' >> $(AWE_WORKER_SCRIPT)
+	echo 'tar cvfz $$2.tgz $$2' >> $(AWE_WORKER_SCRIPT)
+	echo 'cp $$2.tgz /var/tmp/inferelator' >> $(AWE_WORKER_SCRIPT)
+	echo 'rm -rf $$2' >> $(AWE_WORKER_SCRIPT)
 	chmod 775 $(AWE_WORKER_SCRIPT)
 
 deploy-properties:
