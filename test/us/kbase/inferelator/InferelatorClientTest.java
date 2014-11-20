@@ -34,9 +34,9 @@ public class InferelatorClientTest {
 	private String serverUrl = "http://140.221.67.196:7113/";//this is a new enigma instance, old was "http://140.221.85.173:7079/";
 	//private String genomeRef = "AKtest/Halobacterium_sp_NRC-1";
 
-	private String testSeriesRef = "AKtest/Halobacterium_sp_expression_series";
-	private String testCmonkeyRunResultRef = "AKtest/kb|cmonkeyrunresult.157";
-	private String testTfListRef = "AKtest/Halobacterium_sp_TFs";
+	private String testSeriesRef = "nwportal:nwportal_data/hal5-example.ratios";// "AKtest/Halobacterium_sp_expression_series";
+	private String testCmonkeyRunResultRef = "nwportal:cmtestresults/kb|cmonkeyrunresult.238";// "AKtest/kb|cmonkeyrunresult.157";
+	private String testTfListRef = "nwportal:nwportal_data/hal.tfs";// "AKtest/Halobacterium_sp_TFs";
 
 	@Test
 	public void testFindInteractionsWithInferelator() throws AuthException, IOException, JsonClientException {
