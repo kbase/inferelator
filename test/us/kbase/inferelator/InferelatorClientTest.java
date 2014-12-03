@@ -36,7 +36,7 @@ public class InferelatorClientTest {
 
 	private String testSeriesRef = "nwportal:nwportal_data/hal5-example.ratios";// "AKtest/Halobacterium_sp_expression_series";
 	private String testCmonkeyRunResultRef = "nwportal:cmtestresults/kb|cmonkeyrunresult.238";// "AKtest/kb|cmonkeyrunresult.157";
-	private String testTfListRef = "nwportal:nwportal_data/hal.tfs";// "AKtest/Halobacterium_sp_TFs";
+	private String testTfListRef = "nwportal:nwportal_data/hal2.tfs";// "AKtest/Halobacterium_sp_TFs";
 
 	@Test
 	public void testFindInteractionsWithInferelator() throws AuthException, IOException, JsonClientException {

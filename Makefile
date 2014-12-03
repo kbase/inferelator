@@ -37,7 +37,7 @@ deploy-libs: build-libs
 
 deploy-pl-scripts:
 	export KB_TOP=$(TARGET); \
-	export KB_RUNTIME=$(DEPLOY_RUNTIME); \
+	export KB_RUNTIME=$(KB_RUNTIME); \
 	export KB_PERL_PATH=$(TARGET)/lib bash ; \
 	for src in $(SRC_PERL) ; do \
 		basefile=`basename $$src`; \
@@ -65,7 +65,7 @@ deploy-worker: deploy-properties distrib-worker
 	chmod 775 $(AWE_WORKER_SCRIPT)
 
 deploy-properties:
-	echo "inferelator=$(DEPLOY_RUNTIME)/cmonkey-python/inferelator/\nujs_url=$(UJS_SERVICE_URL)\nawe_url=$(AWE_CLIENT_URL)\nid_url=$(ID_SERVICE_URL)\nws_url=$(WS_SERVICE_URL)\nawf_config=$(TARGET_DIR)/inferelator.awf" > $(TARGET_DIR)/inferelator.properties
+	echo "inferelator=$(KB_RUNTIME)/cmonkey-python/inferelator/\nujs_url=$(UJS_SERVICE_URL)\nawe_url=$(AWE_CLIENT_URL)\nid_url=$(ID_SERVICE_URL)\nws_url=$(WS_SERVICE_URL)\nawf_config=$(TARGET_DIR)/inferelator.awf" > $(TARGET_DIR)/inferelator.properties
 
 distrib-worker:
 	mkdir -p $(JOB_DIR)
@@ -111,14 +111,14 @@ test: test-scripts
 
 test-scripts:
 	# run each test
-	$(DEPLOY_RUNTIME)/bin/perl test/script_tests-command-line.t ; \
+	$(KB_RUNTIME)/bin/perl test/script_tests-command-line.t ; \
 	if [ $$? -ne 0 ] ; then \
 		exit 1 ; \
 	fi \
 
 test-worker:
 	# run each test
-	$(DEPLOY_RUNTIME)/bin/perl test/test_inferelator_server_invoker.t ; \
+	$(KB_RUNTIME)/bin/perl test/test_inferelator_server_invoker.t ; \
 	if [ $$? -ne 0 ] ; then \
 		exit 1 ; \
 	fi \
