@@ -32,6 +32,11 @@ public class InferelatorInvoker {
 	                .withArgName("help")
 	                .create() );
 
+			options.addOption( OptionBuilder.withLongOpt( "test" )
+	                .withDescription( "for testing only" )
+	                .withArgName("test")
+	                .create() );
+
 			options.addOption( OptionBuilder.withLongOpt( "method" )
 	                .withDescription( "available methods: find_interactions_with_inferelator" )
 	                .hasArg(true)
@@ -116,6 +121,10 @@ public class InferelatorInvoker {
 			    	HelpFormatter formatter = new HelpFormatter();
 			    	formatter.printHelp( "java -jar /kb/deployment/inferelator/inferelator.jar [parameters]", options );
 
+			    }
+			    else if( line.hasOption( "test" ) ) {
+			    	// return nothing and exit
+			    	System.exit(0);
 			    }
 			    else {
 			    	if ( validateInput(line)){
